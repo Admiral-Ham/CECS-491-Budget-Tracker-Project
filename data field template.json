@@ -1,0 +1,75 @@
+{
+  "_id": "user_id_object" // ObjectId
+  "name": "test_name",
+  "email": "email123@example.com",
+  "password_hash": "hashed_password",
+  "creation_time": "2025-9-24",
+
+  // Object for Transactions
+  "transactions": [
+    {
+      "transaction_id": "trans_id_1", // unique ID for transaction history
+      "amount": "200.00",
+      "type": "expense",
+      "category": {
+        "category_id": "cat_id_1",
+        "name": "Groceries",
+        "type": "expense"
+    },
+    "date": "2025-09-23T10:00:00Z",
+      "note": "Weekly grocery shopping"
+    },
+    // Object For Targeted Goals After Transactions
+  ],
+  "goals": [
+    {
+      "goal_id": "goal_id_1", // A unique ID for the goal
+      "target_amount": 1000.00,
+      "current_progress": 250.00,
+      "start_date": "2025-09-01T00:00:00Z",
+      "end_date": "2025-12-31T23:59:59Z",
+      "name": "New Car Fund"
+    },
+    // Analytics Object
+  ],
+  "analytics": {
+    "total_income": 2000.00,
+    "total_expense": 1500.00,
+    "savings": 500.00,
+    "breakdown_by_category": [
+      { // Categories after analytics
+        "category_name": "Groceries",
+        "total_amount": 300.00
+      },
+      {
+        "category_name": "Rent",
+        "total_amount": 1000.00
+      }
+    ],
+    // Daily Entries
+    "daily_monthly_yearly": {
+      "daily": {
+        "2025-09-24": {
+          "income": 100.00,
+          "expense": 50.00
+        },
+
+      },
+      // Monthly Entries
+      "monthly": {
+        "2025-09": {
+          "income": 2000.00,
+          "expense": 1500.00
+        },
+      },
+      // Yearly Entries
+      "yearly": {
+        "2025": {
+          "income": 2000.00,
+          "expense": 1500.00
+        },
+
+      }
+    }
+  }
+}

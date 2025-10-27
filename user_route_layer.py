@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from services.user_service import add_user_service, list_users_service
-"""API calls for front end"""
+"""API calls for front end, blueprint, and session handling"""
 
 user_bp = Blueprint('user', __name__)
 

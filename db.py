@@ -1,14 +1,24 @@
 from pymongo import MongoClient
 from flask import Flask
-from mongokit import Connection, Document
+from pymongo import MongoClient
 
-MongoDB_Host = 'local host'
-MongoDB_Port = # port number
+
+
+#MongoDB_Host = 'local host'
+#MongoDB_Port = # port number
 
 app = Flask(__name__)
+
+#Connecting Flask to Database
+client = MongoClient('')
+db = client['']
+collection = db['data']
+                     
+
+
 app.config.from_object(__name__)
 
-connection = Connection(app.config['MongoDB_Host'], app.config['MongoDB_Port'])
+#connection = Connection(app.config['MongoDB_Host'], app.config['MongoDB_Port'])
 
 
 

@@ -1,7 +1,5 @@
 from pymongo import MongoClient
 from flask import Flask
-from pymongo import MongoClient
-
 
 
 #MongoDB_Host = 'local host'

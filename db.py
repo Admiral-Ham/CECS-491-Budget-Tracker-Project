@@ -15,12 +15,22 @@ db = client['']
 collection = db['data']
                      
 
+# routing for mongoDB 
 
 app.config.from_object(__name__)
 
 #connection = Connection(app.config['MongoDB_Host'], app.config['MongoDB_Port'])
 
+@app.route('/', methods=['POST'])
+def data_entry():
+  data = request.json
 
+  collection.insert_one(data)
+
+  return 'Data added to MongoDB'
+
+if __name__ == '__main__':
+  app.run()
 
 #def get_db(): MongoDB connection setup
 #client = MongoClient("mongodb+srv://technicsolutions:technicsolutions491a@technicsolutions.kpxzyep.mongodb.net/?retryWrites=true&w=majority&appName=TechnicSolutions")

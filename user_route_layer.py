@@ -22,9 +22,13 @@ def index():
     return 
 
 
-@app.route("/")
+@app.route("/login", methods=["GET", "POST"])
 def login(): # session login 
-    return 
+    if request.method == "POST":
+        # gathering data username in session
+        session["user_name"] = request.form.get("user_name")
+        return db("/")
+    return # something into mongodb request or index of db
     
 @app.route("/")
 def logout(): # session logout

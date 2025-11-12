@@ -1,34 +1,38 @@
 #:import dp kivy.metrics.dp
+
 MDScreen:
     MDBoxLayout:
         orientation: "vertical"
-        
+
         MDTopAppBar:
             title: "Sign In"
             elevation: 2
-            
+
         MDBoxLayout:
             orientation: "vertical"
             padding: dp(16)
             spacing: dp(12)
-            
+
+            Widget:   # pushes content down from the top
+
             MDCard:
                 orientation: "vertical"
                 padding: dp(16)
+                spacing: dp(12)          # <-- ensure space between children
                 radius: 16
-                size_hint_x: None
-                size_hint_y: None
+                elevation: 4
+                size_hint: None, None
                 width: min(self.parent.width * 0.9, dp(420))
                 height: self.minimum_height
                 pos_hint: {"center_x": 0.5}
-                elevation: 3
-            
+
                 MDTextField:
                     id: username
                     hint_text: "Username"
-                    icon_right: "username-outline"
+                    icon_right: "account-outline"
                     mode: "rectangle"
-                
+                    size_hint_x: 1
+
                 MDTextField:
                     id: password
                     hint_text: "Password"
@@ -38,13 +42,17 @@ MDScreen:
                         self.password = not self.password
                         self.icon_right = "eye-off" if self.password else "eye"
                     mode: "rectangle"
-            
+                    size_hint_x: 1
+
                 MDRaisedButton:
                     text: "Login"
+                    pos_hint: {"center_x": 0.5}   # <-- center the button
                     on_release: app.check_login(username.text, password.text)
-            
+
                 MDLabel:
                     id: status
                     text: ""
                     halign: "center"
                     theme_text_color: "Secondary"
+
+            Widget:   

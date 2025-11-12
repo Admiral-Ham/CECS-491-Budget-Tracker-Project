@@ -13,12 +13,12 @@ MDScreen:
             padding: dp(16)
             spacing: dp(12)
 
-            Widget:   # pushes content down from the top
+            Widget:   
 
             MDCard:
                 orientation: "vertical"
                 padding: dp(16)
-                spacing: dp(12)          # <-- ensure space between children
+                spacing: dp(12)          
                 radius: 16
                 elevation: 4
                 size_hint: None, None
@@ -46,7 +46,7 @@ MDScreen:
 
                 MDRaisedButton:
                     text: "Login"
-                    pos_hint: {"center_x": 0.5}   # <-- center the button
+                    pos_hint: {"center_x": 0.5}   
                     on_release: app.check_login(username.text, password.text)
 
                 MDLabel:

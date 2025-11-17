@@ -2,8 +2,9 @@ from kivymd.app import MDApp
 from kivy.uix.screenmanager import ScreenManager
 
 from pages.login_page import LoginScreen
-from pages.landing import LandingScreen
+from pages.landing import LandingScreen # Changed
 from pages.settings import SettingsScreen
+from pages.home_page import HomeScreen
 
 class MyApp(MDApp):
     def build(self):
@@ -13,7 +14,7 @@ class MyApp(MDApp):
 
         sm = ScreenManager()
         sm.add_widget(LoginScreen(name="login"))
-        sm.add_widget(LandingScreen(name="landing"))
+        sm.add_widget(HomeScreen(name="landing")) # Changed
         sm.add_widget(SettingsScreen(name="settings"))
         sm.current = "login"
         return sm

@@ -9,8 +9,8 @@ app = Flask(__name__)
 
 #Connecting Flask to Database
 client = MongoClient('')
-db = client['']
-collection = db['data']
+db = client['user'] # access user collection
+collection = db['data'] # users collection is obtained
                      
 
 # routing for mongoDB 

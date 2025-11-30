@@ -1,14 +1,16 @@
 from typing import List, Optional
 from pydantic import BaseModel, Field, ValidationError
-from datetime import date
+from datetime import datetime
 from schemas.category_schema import Category
+from datetime import datetime
 
 class Budget(BaseModel):
-    id: Optional[int] = Field(default=None, alias="_id")
+    id: Optional[str] = Field(default=None, alias="_id")
     user_id: int
-    name: str = Field(default="Unnamed Budgt")
+    name: str = Field(default="Unnamed Budget")
     total_amount: int = Field(default=0)
     categories: List[Category]
+    created_on: datetime
 
 
     model_config = {

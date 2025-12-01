@@ -26,7 +26,7 @@ def validate_user(data: dict):
         user_doc = user.model_dump(by_alias=True, exclude_none=True)
         return {"success": True, "message":"User validated and created", "return": user_doc}
     except ValidationError as e:
-        return {"sucess": False,"message":"Missing required fields", "return": user_doc}
+        return {"success": False,"message":"Missing required fields", "return": user_doc}
 
 def unique_email(data: dict):
     """

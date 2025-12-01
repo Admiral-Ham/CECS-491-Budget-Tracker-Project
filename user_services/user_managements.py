@@ -1,7 +1,7 @@
-from config.db import db
+from data.db import db
 from schemas.users_schema import User
 from pydantic import ValidationError
-users_collection = db.users
+users_collection = db.userinfo
 
 def create_user(data):
     """Inserting a new document for user"""

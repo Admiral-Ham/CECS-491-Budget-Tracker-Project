@@ -1,4 +1,4 @@
-from config.db import db
+from data.db import db
 from  user_services.user_managements import create_user, get_all_users, validate_user, unique_email
 
 def add_user_service(data: dict):

@@ -1,5 +1,5 @@
 from data.user_model import UserModel
-from Business_logic.auth_logic import AuthLogic
+from Business_service_logic.auth_logic import AuthLogic
 from utils.hashing import hash_password
 
 class AuthService:

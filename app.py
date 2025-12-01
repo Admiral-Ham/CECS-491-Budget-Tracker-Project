@@ -1,18 +1,18 @@
-from flask import Flask
-from routes.category_routes import category_bp
-from routes.expenses_routes import expense_bp
+from flask import Flask, request, jsonify
 
-def start_app():
-    app = Flask(__name__) # initialized the flask application for backend
+app = Flask(__name__)
 
-# Register blueprints
-app.register_blueprint(user_bp, category_bp, expense_bp, budget_bp, report_bp)
-#endpoint group for api
-return app
+@app.post("/login")
+def login():
+    data = request.json()
+    username = data.get("username")
+    password = data.get("password")
+
+    if username == "TechnicSolutions" and password == "1234":
+        return jsonify({"success": True, "message": "Login Ok"})
+    else:
+        return jsonify({"success": False, "message": "Login Failed"})
 
 if __name__ == "__main__":
-    app = create_app()
-    app.run(debug=True, port=5000)
-    
-
+    app.run(debug=True)
 

@@ -1,4 +1,4 @@
-from bson import ObjectId
+"""from bson import ObjectId
 from flask import jsonify
 
 def to_objectid(id_str):
@@ -18,5 +18,7 @@ def obj_to_json(doc):
   # if user_id exists, convert
   if "user_id" in doc and isinstance(doc["user_id"], ObjectId):
     doc["user_id] = str(doc["user_id"])
-  return doc
+  return doc"""
+
+  # work in progress
   

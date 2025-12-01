@@ -3,17 +3,15 @@ from flask import Blueprint, request, jsonify
 # independently made for easier combination into one application inside app.py
 expense_bp = Blueprint("expense", __name__)
 
-@expense_bp.route("/expense", methods=["GET"])
-def get_expense(budget_id):
-    if request.method == budget_id:
-        budget_id = request.args.get("budget_id")
-        if budget_id is None:
-            return jsonify({"success": False, "message": "Invalid JSON"}), 400
-    else:
-        budget_id = request.args.get("budget_id")
-        return jsonify({"success": True, "message": "Invalid JSON"})
-    return budget_id
+@expense_bp.get("/expense")
+def get_expense():
+    budget_id = request.args.get("budget_id")
 
+    if not budget_id:
+        return jsonify({"success": False, "message": "budget_id is required"}), 400
 
-    #parse data to request data from specific resource
-    # can only request data but not modify
+    return jsonify({
+        "success": True,
+        "budget_id": budget_id,
+        "expenses": [] #list of expenses
+    })

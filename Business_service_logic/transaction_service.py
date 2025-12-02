@@ -10,9 +10,10 @@ def add_transaction(budget_id):
 
 def delete_transaction(budget_id):
 
+    
 
 # call user collection because its embedded 
 """one budget, to make categories easier, category is unique to budget
 call budget, search field for specific names category, rule in categories. """
-
+# check for schema validation to coincide with queries
 

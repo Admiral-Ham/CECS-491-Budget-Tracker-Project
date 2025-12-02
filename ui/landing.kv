@@ -15,21 +15,66 @@
                         md_bg_color: app.theme_cls.bg_darkest
                         padding: dp(16)
                         spacing: dp(10)
+
+
+
                     MDBoxLayout:
                         size_hint_y: None
-                        height: dp(64)
-                        padding: dp(12)
-                        spacing: dp(24)
+                        height: dp(80)
                         md_bg_color: app.theme_cls.bg_dark
-                        MDIconButton:
-                            icon: "home"
-                            on_release: app.go_to("landing")
-                        MDIconButton:
-                            icon: "currency-usd"
-                            on_release: app.go_to("budget")
-                        MDIconButton:
-                            icon: "calendar-month"
-                            on_release: app.go_to("calendar")
+                        MDBoxLayout:
+                            orientation: "vertical"
+                            size_hint_x:1
+                            padding: 0, dp(4), 0, dp(4)
+                            md_bg_color: 0.16, 0.16,0.16, 1
+                            MDIconButton:
+                                icon: "home"
+                                icon_size: "32dp"
+                                pos_hint: {"center_x": 0.5, "center_y": 0.5}
+                                on_release: app.go_to("landing")
+                            MDLabel:
+                                text: "Home"
+                                halign:"center"
+                                font_style:"Caption"
+                                theme_text_color:"Custom"
+                                text_color: 1,1,1,1
+
+                        MDBoxLayout:
+                            orientation: "vertical"
+                            size_hint_x: 1
+                            padding: 0, dp(4), 0, dp(4)
+                            md_bg_color: 0.1, 0.1, 0.1, 1
+                            MDIconButton:
+                                icon:"currency-usd"
+                                icon_size:"32dp"
+                                pos_hint: {"center_x":0.5, "center_y":0.5}
+                            MDLabel:
+                                text:"Budget"
+                                halign:"center"
+                                font_style:"Caption"
+                                theme_text_color:"Custom"
+                                text_color:1,1,1,1
+                        MDBoxLayout:
+                            orientation: "vertical"
+                            size_hint_x: 1
+                            padding: 0, dp(4), 0, dp(4)
+                            md_bg_color: 0.1, 0.1, 0.1, 1
+
+                            MDIconButton:
+                                icon: "calendar-month"
+                                icon_size: "32dp"
+                                pos_hint: {"center_x": 0.5, "center_y": 0.5}
+                                # on_release: app.go_to("calendar")
+
+                            MDLabel:
+                                text: "Calendar"
+                                halign: "center"
+                                font_style: "Caption"
+                                theme_text_color: "Custom"
+                                text_color: 1, 1, 1, 1
+
+
+
         MDNavigationDrawer:
             id: nav_drawer
             MDList:
@@ -46,7 +91,7 @@
                     text: "Learn"
                     on_release:
                         nav_drawer.set_state("close")
-                        app.go_to("learn")
+                        app.open_learn_page()
                     IconLeftWidget:
                         icon: "school"
                 OneLineIconListItem:

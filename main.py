@@ -34,6 +34,31 @@ class MyApp(MDApp):
         if not username or not password:
             login.ids.status.text = "Enter username or password"
             return
+# testing connection for login page
+            """response = requests.post(
+            "http://127.0.0.1:5000/login",
+            json={"email": username,
+                  "password": password
+            }
+        )
+
+        try:
+            response = requests.post(
+                "http://127.0.0.1:5000/login",
+                json={"username": username, "password": password}
+            )
+            data = response.json()
+
+            if data["success"]:
+                login.ids.status.text = data["message"]
+                self.root.current = "landing"
+            else:
+                login.ids.status.text = "Login Failed"
+                login.ids.password.text = ""
+
+        except Exception as e:
+            login.ids.status.text = "Server Error"
+            print("Error:", e)"""
 
         if username == "TechnicSolutions" and password == "1234":
             login.ids.status.text = "Login Successfull"
@@ -122,3 +147,4 @@ class MyApp(MDApp):
 
 if __name__ == "__main__":
     MyApp().run()
+

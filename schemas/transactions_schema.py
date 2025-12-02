@@ -4,7 +4,7 @@ from datetime import datetime
 
 class Transaction(BaseModel):
     id: Optional[str] = Field(default=None, alias="_id")
-    category_id: int = Field(default=None)
+    #category_id: int = Field(default=None)
     category_name: str
     amount: float
     note: str

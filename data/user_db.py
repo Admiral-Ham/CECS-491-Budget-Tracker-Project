@@ -1,4 +1,4 @@
-from data.db import db
+from config.settings import db
 
 class UserModel:
 

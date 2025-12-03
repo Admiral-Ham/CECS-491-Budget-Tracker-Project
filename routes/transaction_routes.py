@@ -1,9 +1,9 @@
 from flask import Blueprint, request, jsonify
 # Blueprint allows to organize a flask application into modular reusable components to register the API in main application in order to combine the blueprints into one single application.
 # independently made for easier combination into one application inside app.py
-expense_bp = Blueprint("expense", __name__)
+transaction_bp = Blueprint("transaction", __name__)
 
-@expense_bp.get("/expense")
+@transaction_bp.get("/transaction")
 def get_expense():
     budget_id = request.args.get("budget_id")
 

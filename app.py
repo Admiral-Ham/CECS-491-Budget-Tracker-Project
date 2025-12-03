@@ -1,7 +1,7 @@
 from flask import Flask
 from routes.auth_routes import auth_bp
 from routes.budget_routes import budget_bp
-from routes.expense_routes import expense_bp
+from routes.transaction_routes import transaction_bp
 from routes.category_routes import category_bp
 from routes.report_routes import report_analytics_bp
 
@@ -11,7 +11,7 @@ def create_app():
     # contains api endpoints to establish connection to front end inside Flask upon initialization
     app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(budget_bp)
-    app.register_blueprint(expense_bp)
+    app.register_blueprint(transaction_bp)
     app.register_blueprint(category_bp)
     app.register_blueprint(report_analytics_bp)
 

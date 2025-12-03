@@ -9,7 +9,7 @@ class User(BaseModel):
     email: EmailStr
     password_hash: str
     creation_time: datetime
-    transactions: List[Transaction]
+    transactions: List[dict]
 
     model_config = {
         "populate_by_name": True,

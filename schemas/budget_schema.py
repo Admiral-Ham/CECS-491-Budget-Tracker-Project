@@ -6,10 +6,10 @@ from datetime import datetime
 
 class Budget(BaseModel):
     id: Optional[str] = Field(default=None, alias="_id")
-    user_id: int
+    user_id: str
     name: str = Field(default="Unnamed Budget")
     total_amount: int = Field(default=0)
-    categories: List[Category]
+    categories: List[dict]
     created_on: datetime
 
 

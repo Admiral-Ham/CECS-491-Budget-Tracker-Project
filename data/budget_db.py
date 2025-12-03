@@ -1,13 +1,8 @@
-from db.data import get_database
+class BudgetModel:
+  @staticmethod
+  def find_by_user_id(user_id):
+    return db.budgets.find_one({"user_id": user_id})
 
-transactions = db["transactions"]
-
-def insert_transaction(data: dict):
-  return transactions.insert_one(data)
-
-def get_all_transactions():
-  return list(transactions.find())
-
-def delete_transaction(transaction_id):
-  return transactions.delete_one({"_id": transaction_id})
-
+  @staticmethod
+  def update_budget(budget_id, update_data):
+    return db.budgets.update_one({"_id": budget_id}, {"": update_data})

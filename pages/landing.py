@@ -11,7 +11,7 @@ from kivymd.uix.scrollview import MDScrollView
 
 Builder.load_file(str(Path(__file__).resolve().parents[1] / "ui" / "landing.kv"))
 
-light_theme = ["white", "black", "Light"]
+"""light_theme = ["white", "black", "Light"]
 dark_theme = ["black", "white", "Dark"]
 theme = dark_theme
 
@@ -26,12 +26,13 @@ def pie_chart():
     center = plt.Circle((0, 0), 0.7, fc=theme[0])
     plt.text(0, 0, f"Expenses\n -${sum(data)}", ha="center", va="center", fontsize=20, color=theme[1])
     plt.gca().add_artist(center)
-    return fig
+    return fig"""
 
 class LandingScreen(MDScreen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.theme_cls.theme_style = theme[2]
+        pass
+        """self.theme_cls.theme_style = theme[2]
         
         bottom_nav = MDBottomNavigation()
 
@@ -61,5 +62,6 @@ class LandingScreen(MDScreen):
         bottom_nav.add_widget(calendar_tab)
         
         self.add_widget(bottom_nav)
+        """
 
     

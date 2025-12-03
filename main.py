@@ -118,31 +118,6 @@ class MyApp(MDApp):
     def open_about_page(self):
         pass
     
-    # testing connection for login page
-        """response = requests.post(
-            "http://127.0.0.1:5000/login",
-            json={"email": username,
-                  "password": password
-            }
-        )
-
-        try:
-            response = requests.post(
-                "http://127.0.0.1:5000/login",
-                json={"username": username, "password": password}
-            )
-            data = response.json()
-
-            if data["success"]:
-                login.ids.status.text = data["message"]
-                self.root.current = "landing"
-            else:
-                login.ids.status.text = "Login Failed"
-                login.ids.password.text = ""
-
-        except Exception as e:
-            login.ids.status.text = "Server Error"
-            print("Error:", e)"""
     
 
 if __name__ == "__main__":

@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field, ValidationError
 #from datetime import date
 
 class Category(BaseModel):
-    id: Optional[str] = Field(default=None, alias="_id")
+    #id: Optional[str] = Field(default=None, alias="_id")
     user_id: int 
     name: str
     type: str = Field(default="Need")

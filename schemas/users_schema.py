@@ -4,7 +4,7 @@ from schemas.transactions_schema import Transaction
 from datetime import datetime
 
 class User(BaseModel):
-    id: Optional[str] = Field(default=None, alias="_id")
+    #id: Optional[str] = Field(default=None, alias="_id")
     name: str
     email: EmailStr
     password_hash: str

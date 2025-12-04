@@ -1,26 +1,49 @@
-from config.db import db
-from bson.objectid import ObjectId
+from data.db import db
 
-categories_col = db["categories"]
+#Enforces rule number 5, 6, and 7
+# Rule #5: category names can be edited
+# Rule #6: Category names must be unique
+# Rule #7: if a category is deleted, reassign expenses
 
-def insert_many(categories):
-"""insert list of category documents (list of dictionaries)"""
-  db.posts.insert_Many()
+def add_category_(user_id, category_name):
+    budget = db.budgets.find_one({"user_id": user_id})
+    if not budget:
+        raise ValueError("Budget not found")
 
-def insert_one(cat_doc):
-"""insert a single category document"""
+    # Rule 6
+    if category_name in budget["categories"]:
+        raise ValueError("Category already exists")
 
-def find_by_budget_and_name(budget_id, name):
-"""return category doc matching name within a budget"""
+    db.budgets.update_one({"user_id": user_id},
+                          {"$push": {"categories": category_name}}
+    )
+    return {"message": f"Category '{category_name}' added successfully"}
 
-def find_by_id(cat_id):
-"""return a category by its _id"""
+def rename_category(user_id, old_category_name, new_category_name):
+    # Rule 5
+    budget = db.budgets.find_one({"user_id": user_id})
+    if not budget or old_category_name not in budget["categories"]:
+        raise ValueError("Category not found")
 
-def find_by_budget(budget_id):
-"""return list of categories for a budget"""
+    if new_category_name in budget["categories"]:
+        raise ValueError("New Category already exists")
 
-def update_name(cat_id, new_name):
-"""update only the name field of a category"""
+    db.budgets.update_one(
+        {"user_id": user_id, "categories": old_category_name},
+        {"$set: {categories.$": new_category_name}
+    )
+    return {"message": f"Category '{new_category_name}' renamed successfully"}
 
-def delete(cat_id):
-"""delete a category document"""  
+def delete_category(user_id, category_name, reassign_to):
+    # Rule 7
+    db.budgets.update_one(
+        {"user_id": user_id},
+         {"$pull": {"categories": category_name}}
+    )
+
+    # reassign expenses
+    db.transactions.update_many(
+        {"user_id": user_id, "category": category_name},
+        {"$set": {"category": reassign_to}}
+    )
+    return {"message": f"Category '{category_name}' deleted successfully and reassigned to '{reassign_to}'"}

@@ -1,4 +1,5 @@
-from data.db import db
+from Category.Model import Category
+from config.db import data
 
 #Enforces rule number 5, 6, and 7
 # Rule #5: category names can be edited

@@ -5,6 +5,7 @@ categories_col = db["categories"]
 
 def insert_many(categories):
 """insert list of category documents (list of dictionaries)"""
+  db.posts.insert_Many()
 
 def insert_one(cat_doc):
 """insert a single category document"""

@@ -24,7 +24,8 @@ class BudgetModel():
     budget_doc = {
       "user_id": user_id, #Primary key
       "name": name,       #Primary Key
-      "total_amount": total, 
+      "total_amount": total,
+      "categories": [],
       "created_on": datetime.utcnow()
     }
     try:
@@ -33,7 +34,6 @@ class BudgetModel():
       return db.budgets.insert_one(valid_budget)
     except ValidationError as e:
       print("Validation error: ", e)
-
 
   @staticmethod
   def add_collection_budget(user_id: str, category_name: str):
@@ -72,3 +72,9 @@ class BudgetModel():
     :type category_name: str
     """
     return db.budgets.update_one({"user_id": user_id}, {"$pull": {"categories": category_name}}, upsert=False)
+  
+  @staticmethod
+  def get_all_categories(user_id: str, category_name: str):
+    budget = db.budgets.find_one({"user_id": user_id})
+    categories = budget.get("categories")
+    return categories

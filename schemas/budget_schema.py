@@ -5,11 +5,11 @@ from schemas.category_schema import Category
 from datetime import datetime
 
 class Budget(BaseModel):
-    id: Optional[str] = Field(default=None, alias="_id")
-    user_id: str
-    name: str = Field(default="Unnamed Budget")
-    total_amount: int = Field(default=0)
-    categories: List[dict]
+    #id: Optional[str] = Field(default=None, alias="_id")
+    user_id: str #Primary key
+    name: str = Field(default="Unnamed Budget") #Primary Key
+    total_amount: float = Field(default=0)
+    categories: List[str]
     created_on: datetime
 
 

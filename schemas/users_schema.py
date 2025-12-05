@@ -6,7 +6,7 @@ from datetime import datetime
 class User(BaseModel):
     #id: Optional[str] = Field(default=None, alias="_id")
     name: str
-    email: EmailStr
+    email: EmailStr # Primary Key
     password_hash: str
     creation_time: datetime
     transactions: List[dict]

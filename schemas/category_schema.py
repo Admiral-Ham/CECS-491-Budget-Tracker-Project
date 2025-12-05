@@ -4,9 +4,9 @@ from pydantic import BaseModel, Field, ValidationError
 
 class Category(BaseModel):
     #id: Optional[str] = Field(default=None, alias="_id")
-    user_id: int 
+    #user_id: str 
     name: str
-    type: str = Field(default="Need")
+    #type: str = Field(default="Need")
 
     model_config = {
         "populate_by_name": True,

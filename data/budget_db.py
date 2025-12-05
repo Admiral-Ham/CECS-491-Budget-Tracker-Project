@@ -36,9 +36,9 @@ class BudgetModel():
       print("Validation error: ", e)
 
   @staticmethod
-  def add_collection_budget(user_id: str, category_name: str):
+  def add_category_budget(user_id: str, category_name: str):
     """
-    Docstring for add_collection_budget
+    Docstring for add_category_budget
     
     :param user_id: String Version of User Object ID
     :type user_id: str
@@ -48,9 +48,9 @@ class BudgetModel():
     return db.budgets.update_one({"user_id": user_id}, {"$addToSet": {"categories": category_name}}, upsert=False)
   
   @staticmethod
-  def rename_collection_in_budget(user_id: str, category_name: str, new_name: str):
+  def rename_category_in_budget(user_id: str, category_name: str, new_name: str):
     """
-    Docstring for rename_collection_in_budget
+    Docstring for rename_category_in_budget
     
     :param user_id: Description
     :type user_id: str
@@ -62,9 +62,9 @@ class BudgetModel():
     return db.budgets.update_one({"user_id": user_id, "categories": category_name}, {"$set": {"categories.$": new_name}}, upsert=False)
   
   @staticmethod
-  def remove_collection_budget(user_id: str, category_name: str):
+  def remove_category_budget(user_id: str, category_name: str):
     """
-    Docstring for remove_collection_budget
+    Docstring for remove_category_budget
     
     :param user_id: Description
     :type user_id: str

@@ -1,5 +1,5 @@
-from config.settings import db
-
+#from config.settings import db # there is no db in config.settings file
+from data.db import db
 class UserModel:
 
     collection = db.userinfo

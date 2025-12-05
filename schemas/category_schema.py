@@ -6,7 +6,8 @@ class Category(BaseModel):
     #id: Optional[str] = Field(default=None, alias="_id")
     #user_id: str 
     name: str
-    #type: str = Field(default="Need")
+    limit: float = Field(default= 0.0)
+    spent: float = Field(default= 0.0)
 
     model_config = {
         "populate_by_name": True,

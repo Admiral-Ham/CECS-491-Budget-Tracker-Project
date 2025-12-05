@@ -1,6 +1,6 @@
 from typing import List, Optional
 from pydantic import BaseModel, Field, ValidationError, EmailStr
-from schemas.transactions_schema import Transaction
+#from schemas.transactions_schema import Transaction
 from datetime import datetime
 
 class User(BaseModel):

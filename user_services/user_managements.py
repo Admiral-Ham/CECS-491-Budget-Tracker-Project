@@ -37,6 +37,15 @@ def unique_email(data: dict):
     result = users_collection.find_one({"email": email})
     return result is None
 
+def unique_name(data: dict):
+    """
+    Checks if the email is unique
+    """
+    name = data.get("name")
+    
+    result = users_collection.find_one({"name": name})
+    return result is None
+
 def get_all_users():
     """"returns all user documents"""
     return list(users_collection.find())

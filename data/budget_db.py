@@ -1,5 +1,7 @@
 from data.db import db
 from datetime import datetime
+from schemas.budget_schema import Budget
+from pydantic import ValidationError
 
 class BudgetModel():
 
@@ -8,11 +10,15 @@ class BudgetModel():
     """
     Docstring for find_by_user_id
     
-    :param user_id: Description
+    :param user_id: User ID in string from
     :type user_id: str
     """
     return db.budgets.find_one({"user_id": user_id})
-
+  
+  @staticmethod
+  def update_budget(user_id: str, update_data):
+    return db.budgets.update_one({"user_id": user_id}, {"$set": update_data})
+  
   @staticmethod
   def create_budget(user_id: str, name: str = "Unnamed Budget", total = 0):
     budget_doc = {
@@ -21,11 +27,14 @@ class BudgetModel():
       "total_amount": total, 
       "created_on": datetime.utcnow()
     }
+    try:
+      valid_budget = Budget.model_validate(budget_doc)
+      valid_budget = valid_budget.model_dump(by_alias=True, exclude_none=True)
+      return db.budgets.insert_one(valid_budget)
+    except ValidationError as e:
+      print("Validation error: ", e)
 
-  @staticmethod
-  def update_budget(user_id: str, update_data):
-    return db.budgets.update_one({"user_id": user_id}, {"$set": update_data})
-  
+
   @staticmethod
   def add_collection_budget(user_id: str, category_name: str):
     """

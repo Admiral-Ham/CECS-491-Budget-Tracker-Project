@@ -1,7 +1,7 @@
 from utils.hashing import verify_password, hash_password
 from uuid import uuid4
 
-class AuthLogic:
+class AuthService:
 
     @staticmethod
     def validate_registration(data):

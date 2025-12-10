@@ -51,20 +51,15 @@ class HomePageScreen(MDScreen):
         home_tab.add_widget(self.home_layout)
         bottom_nav.add_widget(home_tab)
 
+
+
+
         budget_tab = MDBottomNavigationItem(
             name="budget",
             text="Budget",
             icon="currency-usd",)
-        bottom_nav.add_widget(budget_tab)
 
-
-
-        calendar_tab = MDBottomNavigationItem(
-            name="calendar",
-            text="Calendar",
-            icon="calendar",)
-
-        calendar_layout = MDBoxLayout(
+        budget_layout = MDBoxLayout(
             orientation="vertical",
             padding="5dp",
             spacing="10dp",)
@@ -74,7 +69,7 @@ class HomePageScreen(MDScreen):
             size_hint=(1, None),
             height="48dp",
             font_style="H6",)
-        calendar_layout.add_widget(self.date_label)
+        budget_layout.add_widget(self.date_label)
         button_row = MDBoxLayout(
             orientation="horizontal",
             size_hint=(1, None),
@@ -92,20 +87,26 @@ class HomePageScreen(MDScreen):
             on_release=self.show_add_transaction_dialog,)
         button_row.add_widget(date_picker_btn)
         button_row.add_widget(add_transaction_btn)
-        calendar_layout.add_widget(button_row)
-        self.calendar_bar = MDBoxLayout(
+        budget_layout.add_widget(button_row)
+        self.budget_bar = MDBoxLayout(
             orientation="vertical",
             adaptive_height=True,
             padding="5dp",
             spacing="2.5dp",)
-        calendar_scroll = MDScrollView()
-        calendar_scroll.add_widget(self.calendar_bar)
-        calendar_layout.add_widget(calendar_scroll)
-        calendar_tab.add_widget(calendar_layout)
-        bottom_nav.add_widget(calendar_tab)
+        budget_scroll = MDScrollView()
+        budget_scroll.add_widget(self.budget_bar)
+        budget_layout.add_widget(budget_scroll)
+        budget_tab.add_widget(budget_layout)
+        bottom_nav.add_widget(budget_tab)
 
         self.load_transactions_for_date()
         self.update_home_page()
+
+        calendar_tab = MDBottomNavigationItem(
+            name="calendar",
+            text="Calendar",
+            icon="calendar",)
+        bottom_nav.add_widget(calendar_tab)
 
     def calculate_category_totals(self):
         category_totals = {label: 0 for label in labels}
@@ -174,14 +175,14 @@ class HomePageScreen(MDScreen):
                     self.bar_layout.add_widget(button_wrapper)
         else:
             no_expenses_label = MDLabel(
-                text="No expenses yet\nAdd transactions using the Calendar tab",
+                text="No expenses yet\nAdd transactions using the Budget tab",
                 halign="center",
                 size_hint=(1, None),
                 height="48dp",)
             self.bar_layout.add_widget(no_expenses_label)
 
     def load_transactions_for_date(self):
-        self.calendar_bar.clear_widgets()
+        self.budget_bar.clear_widgets()
         transactions = self.transactions_by_date.get(self.current_date, [])
 
         if not transactions:
@@ -190,7 +191,7 @@ class HomePageScreen(MDScreen):
                 halign="center",
                 size_hint=(1, None),
                 height="48dp",)
-            self.calendar_bar.add_widget(no_transactions_label)
+            self.budget_bar.add_widget(no_transactions_label)
         else:
             for transaction in transactions:
                 display_text = (f"{transaction['category']}: "f"${transaction['amount']} - {transaction['description']}")
@@ -216,7 +217,7 @@ class HomePageScreen(MDScreen):
                 transaction_layout.add_widget(transaction_button)
                 transaction_layout.add_widget(edit_btn)
                 transaction_layout.add_widget(delete_btn)
-                self.calendar_bar.add_widget(transaction_layout)
+                self.budget_bar.add_widget(transaction_layout)
 
     def remove_transaction(self, transaction):
         if self.current_date in self.transactions_by_date:

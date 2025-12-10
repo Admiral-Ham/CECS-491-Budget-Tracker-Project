@@ -2,7 +2,8 @@ from kivymd.app import MDApp
 from kivy.uix.screenmanager import ScreenManager
 
 from pages.login_page import LoginScreen
-from pages.landing import LandingScreen
+from pages.home_page import HomePageScreen
+
 
 import webbrowser
 
@@ -13,7 +14,7 @@ from kivymd.uix.textfield import MDTextField
 
 class MyApp(MDApp):
     def build(self):
-        self.title = "DEMO FOR BUDGET APP"
+        self.title = "Budget Tracker"
         self.theme_cls.primary_palette = "Teal"
         self.theme_cls.theme_style = "Dark"
         self.forgot_dialog = None
@@ -21,7 +22,7 @@ class MyApp(MDApp):
 
         sm = ScreenManager()
         sm.add_widget(LoginScreen(name="login"))
-        sm.add_widget(LandingScreen(name="landing"))
+        sm.add_widget(HomePageScreen(name="home"))
         sm.current = "login"
         return sm
 
@@ -60,9 +61,9 @@ class MyApp(MDApp):
             login.ids.status.text = "Server Error"
             print("Error:", e)"""
 
-        if username == "TechnicSolutions" and password == "1234":
+        if username == "test" and password == "test":
             login.ids.status.text = "Login Successfull"
-            self.root.current = "landing"
+            self.root.current = "home"
         else:
             login.ids.status.text = "Login Failed"
             login.ids.password.text = ""

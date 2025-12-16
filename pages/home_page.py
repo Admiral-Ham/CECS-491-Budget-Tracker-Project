@@ -102,11 +102,75 @@ class HomePageScreen(MDScreen):
         self.load_transactions_for_date()
         self.update_home_page()
 
+
         calendar_tab = MDBottomNavigationItem(
             name="calendar",
             text="Calendar",
             icon="calendar",)
+        
+        calendar_layout = MDBoxLayout(
+            orientation="vertical",
+            padding="5dp",)
+        
+        self.calendar_scroll = MDScrollView()
+        self.calendar_content = MDBoxLayout(
+            orientation="vertical",
+            adaptive_height=True,
+            padding="5dp",
+            spacing="10dp",)
+        self.calendar_scroll.add_widget(self.calendar_content)
+        calendar_layout.add_widget(self.calendar_scroll)
+        calendar_tab.add_widget(calendar_layout)
         bottom_nav.add_widget(calendar_tab)
+        
+        bottom_nav.bind(on_switch=self.on_switch)
+
+    def on_switch(self, instance, item, item_text, item_icon):
+        if item_text == "Calendar":
+            self.update_calendar_view()
+
+    def update_calendar_view(self):
+        self.calendar_content.clear_widgets()
+        
+        if not any(self.transactions_by_date.values()):
+            no_transactions_label = MDLabel(
+                text="No transactions yet\nAdd transactions using the Budget tab",
+                halign="center",
+                size_hint=(1, None),
+                height="48dp",)
+            self.calendar_content.add_widget(no_transactions_label)
+            return
+
+        sorted_dates = sorted(self.transactions_by_date.keys(), reverse=True)
+        
+        for date_str in sorted_dates:
+            transactions = self.transactions_by_date[date_str]
+            if not transactions:
+                continue
+            
+            date_obj = datetime.strptime(date_str, "%Y-%m-%d")
+            formatted_date = date_obj.strftime("%B %d, %Y")
+            
+            date_total = sum(t.get("amount", 0) for t in transactions)
+            
+            date_header = MDLabel(
+                text=f"{formatted_date} - Total: ${date_total:.2f}",
+                halign="left",
+                size_hint=(1, None),
+                height="40dp",
+                font_style="H6",
+                bold=True,)
+            self.calendar_content.add_widget(date_header)
+            
+            for transaction in transactions:
+                display_text = (f"{transaction['category']}: " f"${transaction['amount']:.2f} - {transaction['description']}")
+                
+                transaction_item = MDRaisedButton(
+                    text=display_text,
+                    size_hint=(1, None),
+                    height="48dp",)
+                self.calendar_content.add_widget(transaction_item)
+            self.calendar_content.add_widget(MDBoxLayout(size_hint=(1, None), height="10dp"))
 
     def calculate_category_totals(self):
         category_totals = {label: 0 for label in labels}
@@ -175,7 +239,7 @@ class HomePageScreen(MDScreen):
                     self.bar_layout.add_widget(button_wrapper)
         else:
             no_expenses_label = MDLabel(
-                text="No expenses yet\nAdd transactions using the Budget tab",
+                text="No transactions yet\nAdd transactions using the Budget tab",
                 halign="center",
                 size_hint=(1, None),
                 height="48dp",)
@@ -227,6 +291,7 @@ class HomePageScreen(MDScreen):
                     del self.transactions_by_date[self.current_date]
                 self.load_transactions_for_date()
                 self.update_home_page()
+                self.update_calendar_view()
 
     def show_edit_transaction_dialog(self, transaction):
         existing_category = transaction.get("category", "")
@@ -314,6 +379,7 @@ class HomePageScreen(MDScreen):
                         self.transactions_by_date[self.current_date][index] = (new_transaction)
                         self.load_transactions_for_date()
                         self.update_home_page()
+                        self.update_calendar_view()
                     except ValueError:
                         pass
             except ValueError:
@@ -398,6 +464,7 @@ class HomePageScreen(MDScreen):
                 self.transactions_by_date[self.current_date].append(transaction)
                 self.load_transactions_for_date()
                 self.update_home_page()
+                self.update_calendar_view()
             except ValueError:
                 pass
 

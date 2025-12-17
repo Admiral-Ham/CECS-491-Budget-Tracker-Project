@@ -12,6 +12,8 @@ from kivymd.uix.dialog import MDDialog
 from kivymd.uix.textfield import MDTextField
 from kivymd.uix.menu import MDDropdownMenu
 
+from kivymd.uix.list import MDList, OneLineIconListItem, IconLeftWidget
+from kivy.app import App
 light_theme = ["white", "black", "Light"]
 dark_theme = ["black", "white", "Dark"]
 theme = dark_theme
@@ -123,7 +125,89 @@ class HomePageScreen(MDScreen):
         calendar_tab.add_widget(calendar_layout)
         bottom_nav.add_widget(calendar_tab)
         
+        settings_tab = MDBottomNavigationItem(
+            name="settings",
+            text="Settings",
+            icon="cog",
+        )
+        
+        settings_layout = MDBoxLayout(
+            orientation="vertical",
+            padding="10dp",
+        )
+        
+        settings_scroll=MDScrollView()
+        settings_list= MDList()
+        settings_scroll.add_widget(settings_list)
+        settings_layout.add_widget(settings_scroll)
+        
+        header = OneLineIconListItem(text="Settings", disabled=True)
+        header.add_widget(IconLeftWidget(icon="cog"))
+        settings_list.add_widget(header)
+        
+        item_learn = OneLineIconListItem(
+            text="Learn",
+            on_release=lambda x: self.on_learn(),
+        )
+        item_learn.add_widget(IconLeftWidget(icon="school"))
+        settings_list.add_widget(item_learn)
+        
+        item_profile = OneLineIconListItem(
+            text="My profile",
+            on_release=lambda x: self.on_profile(),
+        )
+        item_profile.add_widget(IconLeftWidget(icon="account-circle"))
+        settings_list.add_widget(item_profile)
+        
+        spacer = OneLineIconListItem(text="", disabled=True)
+        settings_list.add_widget(spacer)
+        
+        item_about = OneLineIconListItem(
+            text="About",
+            on_release=lambda x: self.on_about(),
+        )
+        item_about.add_widget(IconLeftWidget(icon="information-outline"))
+        settings_list.add_widget(item_about)
+        
+        item_privacy = OneLineIconListItem(
+            text="Privacy",
+            on_release=lambda x: self.on_privacy(),
+        )
+        item_privacy.add_widget(IconLeftWidget(icon="shield-lock-outline"))
+        settings_list.add_widget(item_privacy)
+        
+        item_logout = OneLineIconListItem(
+            text="Log Out",
+            on_release=lambda x: self.on_logout(),
+        )
+        item_logout.add_widget(IconLeftWidget(icon="logout"))
+        settings_list.add_widget(item_logout)
+        
+        settings_tab.add_widget(settings_layout)
+        bottom_nav.add_widget(settings_tab)
         bottom_nav.bind(on_switch=self.on_switch)
+        
+    def on_learn(self):
+        app= App.get_running_app()
+        if hasattr(app, "open_learn_page"):
+            app.open_learn_page()
+            
+    def on_profile(self):
+        pass
+    
+    def on_about(self):
+        app=App.get_running_app()
+        if hasattr(app, "open_about_page"):
+            app.open_about_page()
+    
+    def on_privacy(self):
+        app = App.get_running_app()
+        if hasattr(app, "open_privacy_page"):
+            app.open_privacy_page()
+    
+    def on_logout(self):
+        app = App.get_running_app()
+        app.root.current = "login"
 
     def on_switch(self, instance, item, item_text, item_icon):
         if item_text == "Calendar":

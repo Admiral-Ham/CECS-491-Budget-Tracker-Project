@@ -3,3 +3,8 @@ kivymd
 matplotlib
 kivy-garden
 kivy-garden.matplotlib
+pymongo
+flask
+flask-pymongo
+pydantic
+setuptools

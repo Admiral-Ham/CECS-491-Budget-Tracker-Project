@@ -1,6 +1,6 @@
 # services/budget_service.py
 
-from data.budget_model import BudgetModel
+from data.budget_db import BudgetModel
 
 
 class BudgetService:

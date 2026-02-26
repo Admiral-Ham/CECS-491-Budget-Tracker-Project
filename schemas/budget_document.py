@@ -4,9 +4,9 @@ from datetime import datetime
 from user_document import User
 
 class Budget(Document):
-    user_id: Link[User] # Store user_id
-    name: str
-    creation_time: datetime
+    user_id:        Link[User] # Store user_id
+    name:           str
+    creation_time:  datetime
 
     model_config = {
         "populate_by_name": True,

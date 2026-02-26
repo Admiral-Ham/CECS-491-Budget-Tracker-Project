@@ -5,10 +5,10 @@ from datetime import datetime
 
 class User(Document):
     # Name and email need to be unique
-    name: str
-    email: EmailStr
-    password_hash: str
-    creation_time: datetime
+    name:           str
+    email:          EmailStr
+    password_hash:  str
+    creation_time:  datetime
 
     model_config = {
         "populate_by_name": True,

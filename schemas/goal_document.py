@@ -12,11 +12,11 @@ from beanie import  Document, Link
 from user_document import User
 
 class Goal(Document):
-    user_id: Link[User] # Stores user_id
-    name: str
-    amount:  Annotated[Decimal, Field(decimal_places = 2)]
-    saved:  Annotated[Decimal, Field(decimal_places = 2)]
-    creation_time: datetime
+    user_id:        Link[User] # Stores user_id
+    name:           str
+    amount:         Annotated[Decimal, Field(decimal_places = 2)]
+    saved:          Annotated[Decimal, Field(decimal_places = 2)]
+    creation_time:  datetime
 
     model_config = {
         "populate_by_name": True,

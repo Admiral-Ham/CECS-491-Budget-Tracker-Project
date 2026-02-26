@@ -1,4 +1,4 @@
-from pymongo import IndexModel, ASCENDING, DESCENDING
+from pymongo import IndexModel, ASCENDING
 from typing import Annotated
 from pydantic import Field, field_validator
 from beanie import  Document, Link

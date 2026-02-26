@@ -1,6 +1,6 @@
-from pymongo import IndexModel, ASCENDING, DESCENDING
+from pymongo import IndexModel, ASCENDING
 from pydantic import EmailStr
-from beanie import  Document, Indexed
+from beanie import  Document
 from datetime import datetime
 
 class User(Document):

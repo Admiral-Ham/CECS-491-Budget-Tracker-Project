@@ -1,9 +1,14 @@
-from pymongo import IndexModel, ASCENDING
+# Standard Library
 from typing import Annotated
-from pydantic import Field, field_validator
-from beanie import  Document, Link
 from datetime import datetime
 from decimal import Decimal
+
+# Modules
+from pymongo import IndexModel, ASCENDING
+from pydantic import Field, field_validator
+from beanie import  Document, Link
+
+# Local  App
 from user_document import User
 
 class Goal(Document):

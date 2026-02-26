@@ -1,9 +1,14 @@
-from pymongo import IndexModel, ASCENDING
+# Standard Library
 from typing import Annotated, Optional
-from pydantic import Field, field_validator, model_validator
-from beanie import  Document, Link, before_event, Insert, Replace, Save
 from datetime import datetime
 from decimal import Decimal
+
+# Modules
+from pymongo import IndexModel, ASCENDING
+from pydantic import Field, field_validator, model_validator
+from beanie import  Document, Link, before_event, Insert, Replace, Save
+
+# Local App
 from user_document import User
 from goal_document import Goal
 from budget_document import Budget
@@ -28,13 +33,7 @@ class Transaction(Document):
         return round(v,2)
 
     # This model validator ensure that the optional relations for goal and budget remain 
-    # 
-    @model_validator(mode="after")
-    def exclusive_relation(self):
-        if (self.budget_id is not None) and (self.goal_id is not None):
-            raise ValueError("Transaction can link to a budget or a goal, not both")
-        return self
-
+    # exclusive. For example the transaction can only be related to a goal or a budget
     @model_validator(mode="after")
     def exclusive_relation(self):
         if (self.budget_id is not None) and (self.goal_id is not None):
@@ -43,6 +42,9 @@ class Transaction(Document):
 
     @before_event(Insert, Replace, Save)
     async def validate_category_matches_budget(self):
+        """
+        Validator created to ensure that a category belongs to a budget before inserting, replaceing or saving to a database.
+        """
         if self.category_id is None:
             return
         if self.budget_id is None:

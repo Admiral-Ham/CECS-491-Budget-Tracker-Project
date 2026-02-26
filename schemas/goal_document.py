@@ -1,21 +1,31 @@
 from pymongo import IndexModel, ASCENDING, DESCENDING
-from pydantic import EmailStr
-from beanie import  Document, Indexed
+from typing import Annotated
+from pydantic import Field, field_validator
+from beanie import  Document, Link
 from datetime import datetime
+from decimal import Decimal
+from user_document import User
 
-class User(Document):
+class Goal(Document):
     # Name and email need to be unique
+    user_id: Link[User]
     name: str
-    amount: Indexed(float)
-    password_hash: str
+    amount:  Annotated[Decimal, Field(decimal_places = 2)]
+    saved:  Annotated[Decimal, Field(decimal_places = 2)]
     creation_time: datetime
 
+    model_config = {
+        "populate_by_name": True,
+        "extra": "forbid"
+    }
+
+    @field_validator(amount)
+    def round_two_places(cls, v):
+        return round(v,2)
+
+    @field_validator(saved)
+    def round_two_places(cls, v):
+        return round(v,2)
+
     class Settings:
-        name = "users"
-        indexes = [
-            IndexModel(
-                ("name", ASCENDING),
-                name = "unique_name",
-                unique = True
-            )
-        ]
+        name = "goals"

@@ -1,5 +1,5 @@
 from pymongo import IndexModel, ASCENDING, DESCENDING
-from pydantic import BaseModel, EmailStr
+from pydantic import EmailStr
 from beanie import  Document, Indexed
 from datetime import datetime
 
@@ -10,8 +10,14 @@ class User(Document):
     password_hash: str
     creation_time: datetime
 
+    model_config = {
+        "populate_by_name": True,
+        "extra": "forbid"
+    }
+
     class Settings:
         name = "users"
+        #validation_on_save = True  # Expensive Operation might not be need
         indexes = [
             IndexModel(
                 ("name", ASCENDING),

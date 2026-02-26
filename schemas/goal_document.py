@@ -7,8 +7,7 @@ from decimal import Decimal
 from user_document import User
 
 class Goal(Document):
-    # Name and email need to be unique
-    user_id: Link[User]
+    user_id: Link[User] # Stores user_id
     name: str
     amount:  Annotated[Decimal, Field(decimal_places = 2)]
     saved:  Annotated[Decimal, Field(decimal_places = 2)]

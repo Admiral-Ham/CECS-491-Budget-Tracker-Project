@@ -1,5 +1,4 @@
-from pymongo import IndexModel, ASCENDING, DESCENDING
-import pydantic
+from pymongo import IndexModel, ASCENDING
 from beanie import  Document, Link
 from datetime import datetime
 from user_document import User

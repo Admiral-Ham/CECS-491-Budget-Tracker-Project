@@ -29,3 +29,6 @@ class Goal(Document):
 
     class Settings:
         name = "goals"
+        indexes = [
+            IndexModel(("user_id", ASCENDING))
+        ]

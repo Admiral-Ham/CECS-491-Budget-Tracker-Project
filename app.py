@@ -1,24 +1,28 @@
-from flask import Flask
-from routes.auth_routes import auth_bp
-from routes.budget_routes import budget_bp
-from routes.transaction_routes import transaction_bp
-from routes.category_routes import category_bp
-from routes.report_routes import report_analytics_bp
+from fastapi import FastAPI
+from pymongo import AsyncMongoClient
+from beanie import init_beanie
 
-def create_app():
-    app = Flask(__name__)
+from config import settings
+from models import UserDB
+#from routes import router as users_router
 
-    # contains api endpoints to establish connection to front end inside Flask upon initialization
-    app.register_blueprint(auth_bp, url_prefix='/auth')
-    app.register_blueprint(budget_bp)
-    app.register_blueprint(transaction_bp)
-    app.register_blueprint(category_bp)
-    app.register_blueprint(report_analytics_bp)
+MONGO_URI = "mongodb://localhost:27017"
+DB_NAME = "budgettracker"
+
+async def lifespan(app: FastAPI):
+    client = AsyncMongoClient(MONGO_URI)
+    app.state.mongo_db = client
+
+    await init_beanie(
+        database=client[DB_NAME],
+        document_models=[UserDB], #[Categories], [Transactions], [Goals], [Budget]
+    ) #contains document models, can add more document models on initializing beanie
+    yield
+    client.close()
 
 
-if __name__ == "__main__":
-    create_app().run(debug=True)
-
+app = FastAPI(lifespan=lifespan)
+app.include_router(users_router, prefix="/users", tags=["users"])
 
 #testing login api
 """@app.post("/login")

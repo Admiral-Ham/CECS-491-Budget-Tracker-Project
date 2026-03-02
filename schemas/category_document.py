@@ -1,7 +1,7 @@
 from pymongo import IndexModel, ASCENDING
 from typing import Annotated, Optional
 from pydantic import Field, field_validator
-from beanie import  Document, Link
+from beanie import  Document, Link, BackLink
 from datetime import datetime
 from decimal import Decimal
 from budget_document import Budget

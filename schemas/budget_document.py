@@ -6,7 +6,6 @@ from category_document import Category
 
 class Budget(Document):
     user_id:        Link[User] # Store user_id
-    categories: BackLink[Category] # forward reference to category in budget
     name:           str
     creation_time:  datetime
 

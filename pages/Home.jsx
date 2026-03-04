@@ -24,10 +24,48 @@ const palette = [
 const pieheight = 280;
 const piewidth = 400;
 
+const panels = ["Top Categories", "Goals"];
+
+function ButtonToggle({ active, onClick, children }) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        background: active ? "#ffffff1a" : "transparent",
+        border: active ? "1px solid #ffffff26" : "1px solid transparent",
+        borderRadius: 8,
+        color: active ? "#f1f5f9" : "#64748b",
+        cursor: "pointer",
+        fontSize: 12,
+        fontWeight: 600,
+        letterSpacing: "0.05em",
+        padding: "5px 12px",
+        textTransform: "uppercase",
+        transition: "all 0.15s ease",
+      }}
+    >
+      {children}
+    </button>
+  );
+}
+
+function ToggleGroup({ active, setActive }) {
+  return (
+    <div style={{ display: "flex", gap: 4 }}>
+      {panels.map((type) => (
+        <ButtonToggle key={type} active={active === type} onClick={() => setActive(type)}>
+          {type}
+        </ButtonToggle>
+      ))}
+    </div>
+  );
+}
+
 export default function Home() {
   const [categories, setCategories] = useState([]);
   const [transactions, setTransactions] = useState([]);
   const [currentBudgetId, setCurrentBudgetId] = useState(null);
+  const [activePanel, setActivePanel] = useState(panels[0]);
 
   const loadData = async () => {
     try {
@@ -212,9 +250,11 @@ export default function Home() {
 
               {/* Top categories */}
               <div style={{ ...card, minHeight: 320 }}>
-                <div style={{ color: "#94a3b8", fontSize: 12, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 16 }}>
-                  Top Categories
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+                  <ToggleGroup active={activePanel} setActive={setActivePanel} />
                 </div>
+                {activePanel === "Top Categories" && (
+                  <>
                 {sortedData.length === 0 ? (
                   <div style={{ color: "#94a3b8", fontSize: 14 }}>
                     No transactions this month yet.
@@ -238,8 +278,15 @@ export default function Home() {
                     );
                   })
                 )}
-              </div>
+              </>
+              )}
+              {activePanel === "Goals" && (
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "80%", gap: 8 }}>
+                  <span style={{ color: "#94a3b8", fontSize: 14 }}>No goals yet.</span>
+                </div>
+              )}
             </div>
+          </div>
 
             {/* Transactions table */}
             <div style={{ ...card, minHeight: 240 }}>

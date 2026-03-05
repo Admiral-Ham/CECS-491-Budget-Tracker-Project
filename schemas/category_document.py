@@ -1,7 +1,8 @@
 from pymongo import IndexModel, ASCENDING
 from typing import Annotated, Optional
-from pydantic import Field, field_validator
+from pydantic import Field, field_validator,field_serializer
 from beanie import  Document, Link
+from bson.decimal128 import Decimal128
 from datetime import datetime
 from decimal import Decimal
 from budget_document import Budget
@@ -9,8 +10,8 @@ from budget_document import Budget
 class Category(Document):
     budget_id:      Optional[Link[Budget]] = None
     name:           str
-    limit:          Annotated[Decimal, Field(decimal_places = 2)]
-    spent:          Annotated[Decimal, Field(decimal_places = 2)]
+    limit:          Annotated[Decimal, Field(max_digits=14, decimal_places = 2)]
+    spent:          Annotated[Decimal, Field(max_digits=14, decimal_places = 2)]
     creation_time:  datetime
 
     model_config = {
@@ -18,13 +19,21 @@ class Category(Document):
         "extra": "forbid"
     }
 
-    @field_validator(limit)
-    def round_two_places(cls, v):
-        return round(v,2)
-
-    @field_validator(spent)
-    def round_two_places(cls, v):
-        return round(v,2)
+    @field_validator("limt", mode="after" )
+    def convert_to_decimal_128(cls, v:Decimal):
+        return Decimal128(v)
+    
+    @field_validator("spent", mode="after" )
+    def convert_to_decimal_128(cls, v:Decimal):
+        return Decimal128(v)
+    
+    @field_serializer("limit")
+    def serialize_amount(cls, v: Decimal128):
+        return str(v.to_decimal())
+    
+    @field_serializer("spent")
+    def serialize_amount(cls, v: Decimal128):
+        return str(v.to_decimal())
 
     class Settings:
         name = "categories"

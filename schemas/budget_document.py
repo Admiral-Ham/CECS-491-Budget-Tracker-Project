@@ -20,7 +20,7 @@ class Budget(Document):
         name = "budgets"
         indexes = [
             IndexModel(
-                ("creation_time", ASCENDING),
+                [("creation_time", ASCENDING)],
                 name = "creation_time",
             )
         ]

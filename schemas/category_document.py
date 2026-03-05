@@ -38,5 +38,5 @@ class Category(Document):
     class Settings:
         name = "categories"
         indexes = [
-            IndexModel(("budget_id", ASCENDING))
+            IndexModel([("budget_id", ASCENDING)])
         ]

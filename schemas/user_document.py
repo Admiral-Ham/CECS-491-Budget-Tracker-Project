@@ -20,12 +20,12 @@ class User(Document):
         #validation_on_save = True  # Expensive Operation might not be need
         indexes = [
             IndexModel(
-                ("name", ASCENDING),
+                [("name", ASCENDING)],
                 name = "unique_name",
                 unique = True
             ),
             IndexModel(
-                ("email", ASCENDING),
+                [("email", ASCENDING)],
                 name = "unique_email",
                 unique = True
             )

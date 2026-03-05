@@ -3,11 +3,10 @@ from pydantic import Field
 from beanie import  Document, Link, BackLink
 from datetime import datetime
 from user_document import User
-from category_document import Category
 
 class Budget(Document):
     user_id:        Link[User] # Store user_id
-    categories:     BackLink[Category] = Field(original_field="budget_id")
+    categories:     BackLink["Category"] = Field(original_field="budget_id")
     name:           str
     creation_time:  datetime
 
@@ -24,3 +23,6 @@ class Budget(Document):
                 name = "creation_time",
             )
         ]
+
+from category_document import Category
+Budget.update_forward_refs()

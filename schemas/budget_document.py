@@ -7,7 +7,7 @@ from category_document import Category
 
 class Budget(Document):
     user_id:        Link[User] # Store user_id
-    categories: BackLink[Category] = Field(original_field="budget_id")
+    categories:     BackLink[Category] = Field(original_field="budget_id")
     name:           str
     creation_time:  datetime
 

@@ -5,8 +5,9 @@ from decimal import Decimal
 
 # Modules
 from pymongo import IndexModel, ASCENDING
-from pydantic import Field, field_validator, model_validator
+from pydantic import Field, field_validator, model_validator, field_serializer, condecimal
 from beanie import  Document, Link, before_event, Insert, Replace, Save
+from bson.decimal128 import Decimal128
 
 # Local App
 from user_document import User
@@ -14,13 +15,14 @@ from goal_document import Goal
 from budget_document import Budget
 from category_document import Category
 
+
 class Transaction(Document):
     user_id:        Link[User] # Stores user_id
     goal_id:        Optional[Link[Goal]] = None
     budget_id:      Optional[Link[Budget]] = None
     category_id:    Optional[Link[Category]] = None
     name:           str
-    amount:         Annotated[Decimal, Field(decimal_places = 2)]
+    amount:         Annotated[Decimal, Field(max_digits=14, decimal_places = 2)]
     creation_time:  datetime
 
     model_config = {
@@ -28,9 +30,13 @@ class Transaction(Document):
         "extra": "forbid"
     }
 
-    @field_validator(amount)
-    def round_two_places(cls, v):
-        return round(v,2)
+    @field_validator("amount", mode="after" )
+    def convert_to_decimal_128(cls, v:Decimal):
+        return Decimal128(v)
+    
+    @field_serializer("amount")
+    def serialize_amount(cls, v: Decimal128):
+        return str(v.to_decimal())
 
     # This model validator ensure that the optional relations for goal and budget remain 
     # exclusive. For example the transaction can only be related to a goal or a budget

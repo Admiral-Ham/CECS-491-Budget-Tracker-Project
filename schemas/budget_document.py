@@ -1,5 +1,5 @@
 from pymongo import IndexModel, ASCENDING
-from pydantic import Field
+from pydantic import Field, BaseModel
 from beanie import  Document, Link, BackLink
 from datetime import datetime
 from user_document import User
@@ -14,6 +14,10 @@ class Budget(Document):
         "populate_by_name": True,
         "extra": "forbid"
     }
+
+    class BudgetProjection(BaseModel):
+        name: str
+        creation_time:  datetime
 
     class Settings:
         name = "budgets"

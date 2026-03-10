@@ -1,6 +1,6 @@
 from pymongo import IndexModel, ASCENDING
 from typing import Annotated, Optional
-from pydantic import Field, field_validator,field_serializer
+from pydantic import Field, field_validator,field_serializer, BaseModel
 from beanie import  Document, Link
 from bson.decimal128 import Decimal128
 from datetime import datetime
@@ -35,8 +35,17 @@ class Category(Document):
     def serialize_amount(cls, v: Decimal128):
         return str(v.to_decimal())
 
+    class CatProjection(BaseModel):
+        name:           str
+        limit:          Annotated[Decimal, Field(max_digits=14, decimal_places = 2)]
+        spent:          Annotated[Decimal, Field(max_digits=14, decimal_places = 2)]
+        creation_time:  datetime
+
     class Settings:
         name = "categories"
         indexes = [
             IndexModel([("budget_id", ASCENDING)])
         ]
+
+from budget_document import Budget
+Category.update_forward_refs()

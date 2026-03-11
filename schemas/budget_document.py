@@ -18,6 +18,10 @@ class Budget(Document):
     class BudgetProjection(BaseModel):
         name: str
         creation_time:  datetime
+    """Budget Patch basemodel allows a user to edit budget names up to 100 names."""
+    class BudgetPatch(BaseModel): # multiple budget edits model
+        name: str | None = Field(default=None, min_length=1, max_length=100)
+        model_config= {"extra": "forbid"}
 
         """Budget Patch basemodel allows a user to edit budget names up to 100 names."""
     class BudgetPatch(BaseModel): # multiple budget edits model

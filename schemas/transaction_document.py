@@ -5,7 +5,7 @@ from decimal import Decimal
 
 # Modules
 from pymongo import IndexModel, ASCENDING
-from pydantic import Field, field_validator, model_validator, field_serializer, condecimal
+from pydantic import Field, field_validator, model_validator, field_serializer, BaseModel
 from beanie import  Document, Link, before_event, Insert, Replace, Save
 from bson.decimal128 import Decimal128
 
@@ -21,7 +21,7 @@ class Transaction(Document):
     goal_id:        Optional[Link[Goal]] = None
     budget_id:      Optional[Link[Budget]] = None
     category_id:    Optional[Link[Category]] = None
-    name:           str
+    note:           str
     amount:         Annotated[Decimal, Field(max_digits=14, decimal_places = 2)]
     creation_time:  datetime
 
@@ -31,12 +31,41 @@ class Transaction(Document):
     }
 
     @field_validator("amount", mode="after" )
-    def convert_to_decimal_128(cls, v:Decimal):
-        return Decimal128(v)
+    def convert_to_decimal_128(cls, v):
+        if isinstance(v, Decimal):
+            return Decimal128(v)
+        return v
+    
+    @field_validator("amount", mode="before" )
+    def convert_to_decimal(cls, v):
+        if isinstance(v, Decimal128):
+            return v.to_decimal()
+        return v
     
     @field_serializer("amount")
     def serialize_amount(cls, v: Decimal128):
         return str(v.to_decimal())
+
+    class TransactProjection(BaseModel):
+        note: str
+        amount:         Annotated[Decimal, Field(max_digits=14, decimal_places = 2)]
+        creation_time:  datetime
+
+        @field_validator("amount", mode="after" )
+        def convert_to_decimal_128(cls, v):
+            if isinstance(v, Decimal):
+                return Decimal128(v)
+            return v
+        
+        @field_validator("amount", mode="before" )
+        def convert_to_decimal(cls, v):
+            if isinstance(v, Decimal128):
+                return v.to_decimal()
+            return v
+        
+        @field_serializer("amount")
+        def serialize_amount(cls, v: Decimal128):
+            return str(v.to_decimal())
 
     # This model validator ensure that the optional relations for goal and budget remain 
     # exclusive. For example the transaction can only be related to a goal or a budget

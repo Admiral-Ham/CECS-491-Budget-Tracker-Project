@@ -52,6 +52,9 @@ class Category(Document):
             if isinstance(v, Decimal128):
                 return v.to_decimal()
             return v
+        @field_serializer("limit","spent")
+        def serialize_amount(cls, v: Decimal128):
+            return str(v.to_decimal())
 
     class Settings:
         name = "categories"

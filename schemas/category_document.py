@@ -19,19 +19,19 @@ class Category(Document):
         "extra": "forbid"
     }
 
-    @field_validator("limt", mode="after" )
-    def convert_to_decimal_128(cls, v:Decimal):
-        return Decimal128(v)
+    @field_validator("limit", "spent", mode="after" )
+    def convert_to_decimal_128(cls, v):
+        if isinstance(v, Decimal):
+            return Decimal128(v)
+        return v
     
-    @field_validator("spent", mode="after" )
-    def convert_to_decimal_128(cls, v:Decimal):
-        return Decimal128(v)
+    @field_validator("limit","spent", mode="before" )
+    def convert_to_decimal(cls, v):
+        if isinstance(v, Decimal128):
+            return v.to_decimal()
+        return v
     
-    @field_serializer("limit")
-    def serialize_amount(cls, v: Decimal128):
-        return str(v.to_decimal())
-    
-    @field_serializer("spent")
+    @field_serializer("limit","spent")
     def serialize_amount(cls, v: Decimal128):
         return str(v.to_decimal())
 
@@ -40,6 +40,18 @@ class Category(Document):
         limit:          Annotated[Decimal, Field(max_digits=14, decimal_places = 2)]
         spent:          Annotated[Decimal, Field(max_digits=14, decimal_places = 2)]
         creation_time:  datetime
+        
+        @field_validator("limit", "spent", mode="after" )
+        def convert_to_decimal_128(cls, v):
+            if isinstance(v, Decimal):
+                return Decimal128(v)
+            return v
+
+        @field_validator("limit","spent", mode="before" )
+        def convert_to_decimal(cls, v):
+            if isinstance(v, Decimal128):
+                return v.to_decimal()
+            return v
 
     class Settings:
         name = "categories"

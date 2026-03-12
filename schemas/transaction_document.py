@@ -43,7 +43,7 @@ class Transaction(Document):
         return v
     
     @field_serializer("amount")
-    def serialize_amount(cls, v: Decimal128):
+    def serialize_amount(self, v):
         return str(v.to_decimal())
 
     class TransactProjection(BaseModel):
@@ -56,15 +56,15 @@ class Transaction(Document):
             if isinstance(v, Decimal):
                 return Decimal128(v)
             return v
-        
+
         @field_validator("amount", mode="before" )
         def convert_to_decimal(cls, v):
             if isinstance(v, Decimal128):
                 return v.to_decimal()
             return v
-        
+
         @field_serializer("amount")
-        def serialize_amount(cls, v: Decimal128):
+        def serialize_amount(self, v):
             return str(v.to_decimal())
 
     # This model validator ensure that the optional relations for goal and budget remain 

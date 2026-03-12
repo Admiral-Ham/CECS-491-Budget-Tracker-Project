@@ -32,7 +32,7 @@ class Category(Document):
         return v
     
     @field_serializer("limit","spent")
-    def serialize_amount(cls, v: Decimal128):
+    def serialize_amount(self, v: Decimal128):
         return str(v.to_decimal())
 
     class CatProjection(BaseModel):
@@ -53,7 +53,7 @@ class Category(Document):
                 return v.to_decimal()
             return v
         @field_serializer("limit","spent")
-        def serialize_amount(cls, v: Decimal128):
+        def serialize_amount(self, v):
             return str(v.to_decimal())
 
     class Settings:

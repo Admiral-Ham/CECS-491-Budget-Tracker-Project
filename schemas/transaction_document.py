@@ -66,7 +66,17 @@ class Transaction(Document):
     class Settings:
         name = "transactions"
         indexes = [
-            IndexModel([("user_id", ASCENDING)]), 
-            IndexModel([("budget_id", ASCENDING), ("category_id", ASCENDING)]),
-            IndexModel([("goal_id", ASCENDING)])            
+            IndexModel(
+                [("user_id.$id", 1)],
+                name = "User"
+            ), 
+            IndexModel(
+                [("budget_id.$id", ASCENDING), ("category_id.$id", ASCENDING)],
+                name = "Bud and Cat"
+            ),
+            IndexModel(
+                [("goal_id", ASCENDING)],
+                name = "Goal"
+                )
+
         ]

@@ -8,7 +8,7 @@ from decimal import Decimal
 from budget_document import Budget
 
 class Category(Document):
-    budget_id:      Optional[Link[Budget]] = None
+    budget_id:      Link[Budget]
     name:           str
     limit:          Annotated[Decimal, Field(max_digits=14, decimal_places = 2)]
     spent:          Annotated[Decimal, Field(max_digits=14, decimal_places = 2)]
@@ -44,7 +44,10 @@ class Category(Document):
     class Settings:
         name = "categories"
         indexes = [
-            IndexModel([("budget_id", ASCENDING)])
+            IndexModel(
+                [("budget_id.$id", ASCENDING)],
+                name = "Budget"
+            )
         ]
 
 from budget_document import Budget

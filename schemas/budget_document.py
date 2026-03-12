@@ -30,6 +30,10 @@ class Budget(Document):
             IndexModel(
                 [("creation_time", ASCENDING)],
                 name = "creation_time",
+            ),
+            IndexModel(
+                [("user_id.$id", 1)],
+                name = "user"
             )
         ]
 

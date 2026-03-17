@@ -3,11 +3,10 @@ from datetime import datetime, UTC
 from random import randint
 import json
 
-from user_document import User
-from budget_document import Budget
-from category_document import Category
-from transaction_document import Transaction
-from goal_document import Goal
+from models.user_document import User
+from models.budget_document import Budget
+from models.category_document import Category
+from models.transaction_document import Transaction
 
 from pymongo import AsyncMongoClient
 import asyncio

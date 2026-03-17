@@ -1,29 +1,34 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from pymongo import AsyncMongoClient
 from beanie import init_beanie
 
+#Modules
 from config import settings
-from schemas import User, category_document, transaction_document, goal_document, budget_document
-from routes import router as users_router,
+from models.user_document import User
+from routes.user_create import router as user_router
 
-MONGO_URI = "mongodb://localhost:27017"
-DB_NAME = "budgettracker"
+#MONGO_URI = "mongodb://localhost:27017"
+#DB_NAME = "budgettracker"
 
-async def lifespan(app: FastAPI):
-    client = AsyncMongoClient(MONGO_URI)
-    app.state.mongo_db = client
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    client = AsyncMongoClient(settings.MONGO_URI)
+    db = client[settings.DATABASE_NAME]
 
     await init_beanie(
-        database=client[DB_NAME],
-        document_models=[UserDB, category_document, transaction_document, goal_document, budget_document]
+        database=db,
+        document_models=[User],
     ) #contains document models, can add more document models on initializing beanie
     yield
-    client.close()
 
+    await client.aclose()
 
 app = FastAPI(lifespan=lifespan)
-app.include_router(category_router, transaction_router, goal_router, budget_router)
-prefix="/users", tags=["users"])
+app.include_router(user_router, prefix="/users", tags=["users"])
+
+
+# shows who is logged in, document records to user, filter by user_id
 
 #testing login api
 """@app.post("/login")

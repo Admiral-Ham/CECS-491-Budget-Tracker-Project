@@ -4,14 +4,19 @@ from fastapi import APIRouter, HTTPException
 from beanie import PydanticObjectId
 from pymongo.errors import DuplicateKeyError
 
-router = APIRouter()
+from models.user_document import User
 
-@router.post("/register", response_model=User)
-async def register_user(user: User)
+router = APIRouter() #instantiates the router for frontend
+
+def hashed(password: str) -> str:
+    return f"hashed:{password}" #temporary for testing only
+
+@router.post("/register", response_model=User, response_model_exclude={"password_hash"})
+async def register_user(user: User):
     user = User(
         name=user.name,
         email=user.email,
-        password=hashed(user.password)
+        password_hash=hashed(user.password_hash)
     )
 
     try:

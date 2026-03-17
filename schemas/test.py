@@ -6,7 +6,8 @@ import json
 from user_document import User
 from budget_document import Budget
 from category_document import Category
-#from transaction_document import Transaction
+from transaction_document import Transaction
+from goal_document import Goal
 
 from pymongo import AsyncMongoClient
 import asyncio
@@ -107,12 +108,14 @@ def gen_category_dict(b_id, name = "Unnamed Category", limit=0, spent=0):
     }
     return doc
 
-def gen_transaction_dict(u_id,g_id = None, b_id= None, name= "Unnamed Transaction"):
+def gen_transaction_dict(u_id,g_id = None, b_id = None, c_id = None, amount=0, name= "Unnamed Transaction"):
     doc = {
-    "u_id": name,
-    "g_id": name,
-    "b_id": name,
-    "c_id": name,
+    "user_id": u_id,
+    "goal_id": g_id,
+    "budget_id": b_id,
+    "category_id": c_id,
+    "note": name,
+    "amount": amount,
     "creation_time": datetime.now(UTC)
     }
     return doc
@@ -164,7 +167,11 @@ def menu(file_name, names, password_hashes, email_ending):
             running = False
     return 0
 
-
+def print_list(list):
+    if len(list) == 0:
+        print("Empty List")
+    for x in list:
+        print(f"{x}\n")
 
 async def create_upload_user_docs():
     number = 10
@@ -179,52 +186,71 @@ async def create_upload_user_docs():
     print("\nInserted Users Successfully")
 
 async def main():
-    client = AsyncMongoClient("mongodb+srv://alberts_db_user:....@testdatabase.1axf3iy.mongodb.net/")
+    client = AsyncMongoClient("mongodb+srv://alberts_db_user....@testdatabase.1axf3iy.mongodb.net/")
     db = client["test"]
 
     await init_beanie(
         database=db,
-        document_models=[User,Budget, Category]
+        document_models=[User,Budget, Category, Transaction,]
     )
 
-    
     print(f"\nConnected Sucessfully\n")
 
-    print("Getting Users Documents")
+    print("Getting Users Documents\n")
     users = await User.find_all().to_list()
-
 
     """budget_data = {
         "user_id":        users[0].id,
         "name":           "June",
         "creation_time":  datetime.now(UTC)
     }
-    print("inserting Budget data")
+    print("Inserting Budget data")
     budget = Budget(**budget_data)
-    await budget.insert()
+    await budget.insert()"""
     print(f"User Name = {users[0].name}")
-    """
+    
+    print(f"Number of User documents found: {len(users)}")
     
     budgets = await Budget.find(Budget.user_id.id == users[0].id).project(Budget.
     BudgetProjection).to_list()
+    
+    budgets_docs = await Budget.find(Budget.user_id.id == users[0].id).to_list()
+
+    print(f"Budget Docs:\n")
+    print_list(budgets_docs)
     budgets_list = [x.model_dump_json() for x in budgets]
     buds = 0
 
-    print(f'Found Budget Sucessfully')
-    for x in budgets_list:
-        print(f"{x}\n")
+    print(f'Found Budget Sucessfully\nNumber of Budgets found: {len(budgets_docs)}')
+    print_list(budgets_list)
+    spent = randint(0, 999)
     
-    category_dict = gen_category_dict(budgets[0].id, category_names[randint(0, len(category_names) -1)], 1000, 200)
-    print("Inserting Category data")
+    #Generating And Inserting Categories
+    category_dict = gen_category_dict(budgets_docs[0].id, category_names[randint(0, len(category_names) - 1)], randint(spent, 1000), spent)
+    print("Inserting Category data\n")
     cat = Category(**category_dict)
-    await cat.insert()
-    cats = await Category.find(Category.budget_id.id == budgets[0].id).project(Category.
-    CatProjection).to_list()
-    cats_list = [x.model_dump_json() for x in cats]
+    #await cat.insert()
+    print("Insert Successful\n")
+    print(f"Cat Budget_id = {budgets_docs[0].id}\nCat Dict = {category_dict["budget_id"]}\n")
     
-    print(f'Found Cat Sucessfully')
-    for x in cats_list:
-        print(f"{x}\n")
+    print(f"Testing Category find\n")
+    cats = await Category.find(Category.budget_id.id == budgets_docs[0].id).project(Category.CatProjection).to_list()
+    cats_doc = await Category.find(Category.budget_id.id == budgets_docs[0].id).to_list()
+
+    print(f'Found Cat Sucessfully\n')
+    print(f"Number of Cats found: {len(cats)}")
+    print(f"Cat docs found: {len(cats_doc)}\n")
+    cats_list = [x.model_dump_json() for x in cats]
+    #print_list(cats_doc)
+
+    spent = 15
+    # Transactions Part
+    print(f"Transactions begin")
+    t_dict = gen_transaction_dict(users[0].id, b_id = budgets_docs[0].id,c_id= cats_doc[0].id, name= "Gas" , amount= spent)
+    tran = Transaction(**t_dict)
+    print(f"Attempting Insertion of Transaction Doc")
+    await tran.insert()
+    print(f"Sucessful Transaction Doc Insertions")
 
 if __name__ == "__main__":
     asyncio.run(main()) 

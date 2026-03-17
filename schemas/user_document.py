@@ -1,5 +1,5 @@
 from pymongo import IndexModel, ASCENDING
-from pydantic import EmailStr
+from pydantic import EmailStr, Field
 from beanie import  Document
 from datetime import datetime
 
@@ -8,7 +8,7 @@ class User(Document):
     name:           str
     email:          EmailStr
     password_hash:  str
-    creation_time:  datetime
+    creation_time:  datetime = Field(default_factory=datetime.utcnow)
 
     model_config = {
         "populate_by_name": True,

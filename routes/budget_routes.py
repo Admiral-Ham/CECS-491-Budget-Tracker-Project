@@ -14,16 +14,16 @@ router = FastAPI(prefix="/budget") # GET /budgets
 async def list_budgets(user=Depends(get_current_user)):
     return await (
         Budget.find(Budget.user_id == user.id)
-        .project(Budget.BudgetProjection)
+        .project[0](Budget.BudgetProjection)
         .to_list()
-    )
+    ) # indexes the first collection in ascending order
 @router.patch("/budgets/{budget_id}", response_model=Budget.BudgetProjection)
 async def patch_budget(
     budget_id: user_id,
     patch: BudgetPatch,
     user=Depends(get_current_user))
 
-    updates = patch.model_dump(exclude_unset=True)
+    updates = patch.model_dump(exclude_unset=True) # this will help
 
     budget = await Budget.find_one(Budget.user_id == budget_id, Budget.user_id == user.id)
     if not budget:

@@ -1,6 +1,6 @@
 from typing import List, Optional
 from pydantic import BaseModel, Field, ValidationError, EmailStr
-#from schemas.transactions_schema import Transaction
+
 from datetime import datetime
 
 class User(BaseModel):
@@ -9,18 +9,17 @@ class User(BaseModel):
     email: EmailStr # Primary Key
     password_hash: str
     creation_time: datetime
-    transactions: List[dict]
+    #transactions: List[dict] >>>this could cause issues for fastapi, will use fastapi for transactions route as a to_list() to handle separation of concerns
 
     model_config = {
         "populate_by_name": True,
         "extra": "forbid"
     }
 
+
 def validate_user(doc: dict):
-    try: 
+    try:
         user = User.model_validate(doc)
         return True, []
     except ValidationError as e:
         return False, [str(e)]
-    
-    

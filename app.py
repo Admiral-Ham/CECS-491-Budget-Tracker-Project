@@ -3,8 +3,8 @@ from pymongo import AsyncMongoClient
 from beanie import init_beanie
 
 from config import settings
-from models import UserDB
-#from routes import router as users_router
+from schemas import User, category_document, transaction_document, goal_document, budget_document
+from routes import router as users_router,
 
 MONGO_URI = "mongodb://localhost:27017"
 DB_NAME = "budgettracker"
@@ -15,14 +15,15 @@ async def lifespan(app: FastAPI):
 
     await init_beanie(
         database=client[DB_NAME],
-        document_models=[UserDB], #[Categories], [Transactions], [Goals], [Budget]
+        document_models=[UserDB, category_document, transaction_document, goal_document, budget_document]
     ) #contains document models, can add more document models on initializing beanie
     yield
     client.close()
 
 
 app = FastAPI(lifespan=lifespan)
-app.include_router(users_router, prefix="/users", tags=["users"])
+app.include_router(category_router, transaction_router, goal_router, budget_router)
+prefix="/users", tags=["users"])
 
 #testing login api
 """@app.post("/login")

@@ -78,19 +78,29 @@ class Transaction(Document):
     @before_event(Insert, Replace, Save)
     async def validate_category_matches_budget(self):
         """
-        Validator created to ensure that a category belongs to a budget before inserting, replaceing or saving to a database.
+        Validator created to ensure that a category belongs to a budget before inserting, replacing or saving to a database.
         """
+        cat_ref = self.category_id.ref
+        bud_ref = self.budget_id.ref
+
         if self.category_id is None:
             return
         if self.budget_id is None:
             raise ValueError("Category must have a budget.")
         
-        category = await Category.get(self.category_id)
+        if cat_ref is None:
+            raise ValueError("Transaction Category reference is invalid")
+        if bud_ref is None:
+            raise ValueError("Transaction Budget reference is invalid")
+
+        category = await Category.get(cat_ref.id)
 
         if category is None:
             raise ValueError("Category does not exist.")
-        if category.budget_id != self.budget_id:
-            raise ValueError("Category must belong to the same budget")
+        if (category.budget_id is None) or (category.budget_id.ref is None):
+            raise ValueError("Category must belong to a budget")
+        if category.budget_id.ref.id != bud_ref.id:
+            raise ValueError("Category must belong to the same budget as transaction")
 
     class Settings:
         name = "transactions"

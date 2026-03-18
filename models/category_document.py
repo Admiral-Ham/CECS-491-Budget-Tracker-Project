@@ -5,7 +5,7 @@ from beanie import  Document, Link
 from bson.decimal128 import Decimal128
 from datetime import datetime
 from decimal import Decimal
-from models.budget_document import Budget
+from budget_document import Budget
 
 class Category(Document):
     budget_id:      Link[Budget]

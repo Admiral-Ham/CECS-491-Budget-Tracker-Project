@@ -2,7 +2,7 @@ from pymongo import IndexModel, ASCENDING
 from pydantic import Field, BaseModel
 from beanie import  Document, Link, BackLink
 from datetime import datetime
-from models.user_document import User
+from user_document import User
 
 class Budget(Document):
     user_id:        Link[User] # Store user_id

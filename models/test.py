@@ -3,10 +3,11 @@ from datetime import datetime, UTC
 from random import randint
 import json
 
-from models.user_document import User
-from models.budget_document import Budget
-from models.category_document import Category
-from models.transaction_document import Transaction
+from user_document import User
+from budget_document import Budget
+from category_document import Category
+from transaction_document import Transaction
+from goal_document import Goal
 
 from pymongo import AsyncMongoClient
 import asyncio
@@ -190,7 +191,7 @@ async def main():
 
     await init_beanie(
         database=db,
-        document_models=[User,Budget, Category, Transaction,]
+        document_models=[User,Budget, Category, Transaction,Goal]
     )
 
     print(f"\nConnected Sucessfully\n")
@@ -242,14 +243,14 @@ async def main():
     cats_list = [x.model_dump_json() for x in cats]
     #print_list(cats_doc)
 
-    spent = 15
+    """spent = 15
     # Transactions Part
     print(f"Transactions begin")
     t_dict = gen_transaction_dict(users[0].id, b_id = budgets_docs[0].id,c_id= cats_doc[0].id, name= "Gas" , amount= spent)
     tran = Transaction(**t_dict)
     print(f"Attempting Insertion of Transaction Doc")
     await tran.insert()
-    print(f"Sucessful Transaction Doc Insertions")
+    print(f"Sucessful Transaction Doc Insertions")"""
 
 if __name__ == "__main__":
     asyncio.run(main()) 

@@ -73,6 +73,14 @@ const label = {
   marginBottom: 4,
 };
 
+const errorText = {
+  color: "#fca5a5",
+  fontSize: 12,
+  marginTop: 8,
+};
+
+const isValidCurrencyAmount = (value) => /^\d+\.\d{2}$/.test(value.trim());
+
 export default function Budget() {
   const [budgets, setBudgets] = useState([]);
   const [currentBudget, setCurrentBudget] = useState(null);
@@ -279,7 +287,30 @@ export default function Budget() {
     }
   };
 
+  const handleDeleteCategory = async (categoryId) => {
+    const category = categories.find((c) => c.id === categoryId);
+    if (!category) return;
+    const confirmed = window.confirm(
+      `Delete category "${category.name}"? This will also delete all transactions in this category.`
+    );
+    if (!confirmed) return;
+
+    try {
+      await api.deleteCategory(currentBudget.id, categoryId);
+      setCategories(categories.filter((c) => c.id !== categoryId));
+      setTransactions(transactions.filter((t) => t.categoryId !== categoryId));
+    } catch (error) {
+      console.error("Failed to delete category:", error);
+      alert("Failed to delete category: " + error.message);
+    }
+  };
+
   const handleCreateTransaction = async () => {
+    if (!isValidCurrencyAmount(transactionAmount)) {
+      alert("Please enter a valid amount in dollars and cents, like 10.00.");
+      return;
+    }
+
     try {
       const newTransaction = await api.createTransaction(currentBudget.id, {
         note: transactionNote,
@@ -309,6 +340,11 @@ export default function Budget() {
   };
 
   const handleUpdateTransaction = async () => {
+    if (!isValidCurrencyAmount(editTransactionAmount)) {
+      alert("Please enter a valid amount in dollars and cents, like 10.00.");
+      return;
+    }
+
     try {
       const updated = await api.updateTransaction(currentBudget.id, editTransactionId, {
         note: editTransactionNote,
@@ -328,6 +364,23 @@ export default function Budget() {
     } catch (error) {
       console.error("Failed to update transaction:", error);
       alert("Failed to update transaction: " + error.message);
+    }
+  };
+
+  const handleDeleteTransaction = async (transactionId) => {
+    const transaction = transactions.find((t) => t.id === transactionId);
+    if (!transaction) return;
+    const confirmed = window.confirm(
+      `Delete transaction "${transaction.note}"?`
+    );
+    if (!confirmed) return;
+
+    try {
+      await api.deleteTransaction(currentBudget.id, transactionId);
+      setTransactions(transactions.filter((t) => t.id !== transactionId));
+    } catch (error) {
+      console.error("Failed to delete transaction:", error);
+      alert("Failed to delete transaction: " + error.message);
     }
   };
 
@@ -470,6 +523,15 @@ export default function Budget() {
                             >
                               Edit
                             </button>
+                            <button
+                              style={{ ...actionButton, color: "#fca5a5" }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteCategory(category.id);
+                              }}
+                            >
+                              Delete
+                            </button>
                           </div>
                         </div>
 
@@ -491,6 +553,7 @@ export default function Budget() {
                                   borderRadius: 6,
                                   display: "flex",
                                   justifyContent: "space-between",
+                                  alignItems: "center",
                                   fontSize: 14,
                                 }}
                               >
@@ -508,8 +571,28 @@ export default function Budget() {
                                     {new Date(transaction.date).toLocaleDateString()}
                                   </div>
                                 </div>
-                                <div style={{ fontWeight: 600, color: "#ef4444" }}>
-                                  ${transaction.amount.toFixed(2)}
+                                <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                                  <div style={{ fontWeight: 600, color: "#ef4444" }}>
+                                    ${transaction.amount.toFixed(2)}
+                                  </div>
+                                  <button
+                                    style={actionButton}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      openEditTransaction(transaction);
+                                    }}
+                                  >
+                                    Edit
+                                  </button>
+                                  <button
+                                    style={{ ...actionButton, color: "#fca5a5" }}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleDeleteTransaction(transaction.id);
+                                    }}
+                                  >
+                                    Delete
+                                  </button>
                                 </div>
                               </div>
                             ))}
@@ -574,6 +657,12 @@ export default function Budget() {
                           >
                             Edit
                           </button>
+                          <button
+                            style={{ ...actionButton, color: "#fca5a5" }}
+                            onClick={() => handleDeleteTransaction(transaction.id)}
+                          >
+                            Delete
+                          </button>
                         </div>
                       </div>
                     );
@@ -599,6 +688,11 @@ export default function Budget() {
                 style={input}
                 value={budgetName}
                 onChange={(e) => setBudgetName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && budgetName.trim()) {
+                    handleCreateBudget();
+                  }
+                }}
                 placeholder="e.g., This Month's Budget"
               />
             </div>
@@ -639,6 +733,11 @@ export default function Budget() {
                 style={input}
                 value={categoryName}
                 onChange={(e) => setCategoryName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && categoryName.trim() && categoryLimit) {
+                    handleCreateCategory();
+                  }
+                }}
                 placeholder="e.g., Groceries, Transportation"
               />
             </div>
@@ -650,6 +749,11 @@ export default function Budget() {
                 style={input}
                 value={categoryLimit}
                 onChange={(e) => setCategoryLimit(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && categoryName.trim() && categoryLimit) {
+                    handleCreateCategory();
+                  }
+                }}
                 placeholder="e.g., 500.00"
               />
             </div>
@@ -690,19 +794,40 @@ export default function Budget() {
                 style={input}
                 value={transactionNote}
                 onChange={(e) => setTransactionNote(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && transactionNote.trim() && transactionAmount && transactionCategory && transactionDate) {
+                    handleCreateTransaction();
+                  }
+                }}
                 placeholder="e.g., Weekly groceries"
               />
             </div>
             <div style={{ marginBottom: 16 }}>
               <label style={label}>Amount</label>
               <input
-                type="number"
-                step="0.01"
+                type="text"
+                inputMode="decimal"
                 style={input}
                 value={transactionAmount}
                 onChange={(e) => setTransactionAmount(e.target.value)}
-                placeholder="e.g., 42.50"
+                onKeyDown={(e) => {
+                  if (
+                    e.key === "Enter" &&
+                    transactionNote.trim() &&
+                    isValidCurrencyAmount(transactionAmount) &&
+                    transactionCategory &&
+                    transactionDate
+                  ) {
+                    handleCreateTransaction();
+                  }
+                }}
+                placeholder="e.g., 10.00"
               />
+              {transactionAmount && !isValidCurrencyAmount(transactionAmount) && (
+                <div style={errorText}>
+                  Enter a valid amount in dollars and cents, like 10.00.
+                </div>
+              )}
             </div>
             <div style={{ marginBottom: 16 }}>
               <label style={label}>Category</label>
@@ -726,6 +851,11 @@ export default function Budget() {
                 style={input}
                 value={transactionDate}
                 onChange={(e) => setTransactionDate(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && transactionNote.trim() && transactionAmount && transactionCategory && transactionDate) {
+                    handleCreateTransaction();
+                  }
+                }}
               />
             </div>
             <div style={{ display: "flex", gap: 12, justifyContent: "flex-end" }}>
@@ -744,7 +874,7 @@ export default function Budget() {
                 onClick={handleCreateTransaction}
                 disabled={
                   !transactionNote.trim() ||
-                  !transactionAmount ||
+                  !isValidCurrencyAmount(transactionAmount) ||
                   !transactionCategory ||
                   !transactionDate
                 }
@@ -770,6 +900,11 @@ export default function Budget() {
                 style={input}
                 value={editBudgetName}
                 onChange={(e) => setEditBudgetName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && editBudgetName.trim()) {
+                    handleUpdateBudget();
+                  }
+                }}
                 placeholder="e.g., Monthly Budget"
               />
             </div>
@@ -810,17 +945,27 @@ export default function Budget() {
                 style={input}
                 value={editCategoryName}
                 onChange={(e) => setEditCategoryName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && editCategoryName.trim() && editCategoryLimit) {
+                    handleUpdateCategory();
+                  }
+                }}
                 placeholder="e.g., Groceries, Transportation"
               />
             </div>
             <div style={{ marginBottom: 20 }}>
               <label style={label}>Budget Limit</label>
               <input
-                type="number"
+                type="Decimal"
                 step="0.01"
                 style={input}
                 value={editCategoryLimit}
                 onChange={(e) => setEditCategoryLimit(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && editCategoryName.trim() && editCategoryLimit) {
+                    handleUpdateCategory();
+                  }
+                }}
                 placeholder="e.g., 500.00"
               />
             </div>
@@ -861,19 +1006,40 @@ export default function Budget() {
                 style={input}
                 value={editTransactionNote}
                 onChange={(e) => setEditTransactionNote(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && editTransactionNote.trim() && editTransactionAmount && editTransactionCategory && editTransactionDate) {
+                    handleUpdateTransaction();
+                  }
+                }}
                 placeholder="e.g., Weekly groceries"
               />
             </div>
             <div style={{ marginBottom: 16 }}>
               <label style={label}>Amount</label>
               <input
-                type="number"
-                step="0.01"
+                type="text"
+                inputMode="decimal"
                 style={input}
                 value={editTransactionAmount}
                 onChange={(e) => setEditTransactionAmount(e.target.value)}
-                placeholder="e.g., 42.50"
+                onKeyDown={(e) => {
+                  if (
+                    e.key === "Enter" &&
+                    editTransactionNote.trim() &&
+                    isValidCurrencyAmount(editTransactionAmount) &&
+                    editTransactionCategory &&
+                    editTransactionDate
+                  ) {
+                    handleUpdateTransaction();
+                  }
+                }}
+                placeholder="e.g., 10.00"
               />
+              {editTransactionAmount && !isValidCurrencyAmount(editTransactionAmount) && (
+                <div style={errorText}>
+                  Enter a valid amount in dollars and cents, like 10.00.
+                </div>
+              )}
             </div>
             <div style={{ marginBottom: 16 }}>
               <label style={label}>Category</label>
@@ -897,6 +1063,11 @@ export default function Budget() {
                 style={input}
                 value={editTransactionDate}
                 onChange={(e) => setEditTransactionDate(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && editTransactionNote.trim() && editTransactionAmount && editTransactionCategory && editTransactionDate) {
+                    handleUpdateTransaction();
+                  }
+                }}
               />
             </div>
             <div style={{ display: "flex", gap: 12, justifyContent: "flex-end" }}>
@@ -915,7 +1086,7 @@ export default function Budget() {
                 onClick={handleUpdateTransaction}
                 disabled={
                   !editTransactionNote.trim() ||
-                  !editTransactionAmount ||
+                  !isValidCurrencyAmount(editTransactionAmount) ||
                   !editTransactionCategory ||
                   !editTransactionDate
                 }

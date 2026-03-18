@@ -4,12 +4,13 @@ from datetime import datetime
 from decimal import Decimal
 
 # Modules
-from pymongo import IndexModel
-from pydantic import Field, field_validator
+from pymongo import IndexModel, ASCENDING
+from pydantic import Field, field_validator, field_serializer, BaseModel
 from beanie import  Document, Link
+from bson.decimal128 import Decimal128
 
 # Local  App
-from models.user_document import User
+from user_document import User
 
 class Goal(Document):
     user_id:        Link[User] # Stores user_id
@@ -23,13 +24,47 @@ class Goal(Document):
         "extra": "forbid"
     }
 
-    @field_validator(amount)
+    @field_validator("amount","saved")
     def round_two_places(cls, v):
         return round(v,2)
 
-    @field_validator(saved)
-    def round_two_places(cls, v):
-        return round(v,2)
+    @field_validator("amount","saved", mode="after" )
+    def convert_to_decimal_128(cls, v):
+        if isinstance(v, Decimal):
+            return Decimal128(v)
+        return v
+    
+    @field_validator("amount", "saved", mode="before" )
+    def convert_to_decimal(cls, v):
+        if isinstance(v, Decimal128):
+            return v.to_decimal()
+        return v
+    
+    @field_serializer("amount", "saved")
+    def serialize_amount(self, v):
+        return str(v.to_decimal())
+
+    class GoalProjection(BaseModel):
+        name:           str
+        amount:         Annotated[Decimal, Field(decimal_places = 2)]
+        saved:          Annotated[Decimal, Field(decimal_places = 2)]
+        creation_time:  datetime
+
+        @field_validator("amount","saved", mode="after" )
+        def convert_to_decimal_128(cls, v):
+            if isinstance(v, Decimal):
+                return Decimal128(v)
+            return v
+        
+        @field_validator("amount", "saved", mode="before" )
+        def convert_to_decimal(cls, v):
+            if isinstance(v, Decimal128):
+                return v.to_decimal()
+            return v
+        
+        @field_serializer("amount", "saved")
+        def serialize_amount(self, v):
+            return str(v.to_decimal())
 
     class Settings:
         name = "goals"

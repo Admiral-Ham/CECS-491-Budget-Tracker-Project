@@ -2,6 +2,8 @@ from pydantic import EmailStr
 from datetime import datetime, UTC
 from random import randint
 import json
+from bson  import Decimal128
+from decimal import Decimal
 
 from user_document import User
 from budget_document import Budget
@@ -140,6 +142,27 @@ def gen_list_user_dict(names,password_hashes, email_ending, number: int):
         user_list.append(user_doc)
     return user_list
 
+def random_money(min_val=0, max_val=1):
+    if isinstance(min_val, Decimal128):
+        min_val = min_val.to_decimal()
+    if isinstance(max_val, Decimal128):
+        max_val = max_val.to_decimal()
+
+    min_val = Decimal(str(min_val))
+    max_val = Decimal(str(max_val))
+    return Decimal(randint(int(min_val * 100), int(max_val * 100))) / Decimal(100)
+
+def normalize_decimal(value):
+    if isinstance(value, Decimal128):
+        return value.to_decimal()
+    return Decimal(value)
+
+def subtract_amount(current, incoming):
+    current = normalize_decimal(current)
+    incoming = normalize_decimal(incoming)
+    print(f"current: {current}, type: {type(current)}\n incoming: {incoming}, type: {type(incoming)}")
+    return current - incoming
+
 def write_dicts(filename, dict_list):
     with open(filename, "w") as f:
         for d in dict_list:
@@ -241,16 +264,21 @@ async def main():
     print(f"Number of Cats found: {len(cats)}")
     print(f"Cat docs found: {len(cats_doc)}\n")
     cats_list = [x.model_dump_json() for x in cats]
-    #print_list(cats_doc)
+    print_list(cats_list)
 
-    """spent = 15
+    # spent = random_money(min_val= 10,max_val= cats_doc[0].spent)
+    print(f"{cats_doc[0].spent}")
+    spent = subtract_amount(cats_doc[0].spent, Decimal("40.63"))
     # Transactions Part
     print(f"Transactions begin")
-    t_dict = gen_transaction_dict(users[0].id, b_id = budgets_docs[0].id,c_id= cats_doc[0].id, name= "Gas" , amount= spent)
+    """t_dict = gen_transaction_dict(users[0].id, b_id = budgets_docs[0].id,c_id= cats_doc[0].id, name= "Gas" , amount= spent)
     tran = Transaction(**t_dict)
     print(f"Attempting Insertion of Transaction Doc")
     await tran.insert()
     print(f"Sucessful Transaction Doc Insertions")"""
+    print(f"Get Transactions Based on Category")
+    trans = await Transaction.find(Transaction.category_id.id == cats_doc[0].id).to_list()
+    print_list(trans)
 
 if __name__ == "__main__":
     asyncio.run(main()) 

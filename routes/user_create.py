@@ -5,14 +5,15 @@ from beanie import PydanticObjectId
 from pymongo.errors import DuplicateKeyError
 
 from models.user_document import User
+from schemas.users_schema import UserCreate, UserRead
 
 router = APIRouter() #instantiates the router for frontend
 
 def hashed(password: str) -> str:
     return f"hashed:{password}" #temporary for testing only
 
-@router.post("/register", response_model=User, response_model_exclude={"password_hash"})
-async def register_user(user: User):
+@router.post("/register", response_model=UserRead) #response_model_exclude={"password_hash"})
+async def register_user(user: UserCreate):
     user = User(
         name=user.name,
         email=user.email,
@@ -26,7 +27,7 @@ async def register_user(user: User):
 
     return user
 
-@router.get("/{user_id}", response_model=User)
+@router.get("/{user_id}", response_model=UserRead)
 async def get_user(user_id: PydanticObjectId):
     user = await User.get(user_id)
     if not user:

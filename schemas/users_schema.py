@@ -1,8 +1,9 @@
 from typing import List, Optional
 from pydantic import BaseModel, Field, ValidationError, EmailStr
-
+from beanie import PydanticObjectId
 from datetime import datetime
 
+"""helper function for validation"""
 class User(BaseModel):
     #id: Optional[str] = Field(default=None, alias="_id")
     name: str
@@ -15,8 +16,24 @@ class User(BaseModel):
         "populate_by_name": True,
         "extra": "forbid"
     }
+"""FastAPI request body for userinput"""
 
+class UserCreate(BaseModel):
+    name: str
+    email: EmailStr
+    password: str = Field(min_length=8)
 
+    model_config = {"extra": "forbid"}
+
+"""FastAPI request body for user output"""
+class UserRead(BaseModel):
+    id: PydanticObjectId
+    name: str
+    email: EmailStr
+    creation_time: datetime
+
+    model_config = {"extra": "forbid"}
+# both base models
 def validate_user(doc: dict):
     try:
         user = User.model_validate(doc)

@@ -19,6 +19,7 @@ class User(Document):
         email: EmailStr
         creation_time: datetime = Field(default_factory=datetime.utcnow)
 
+
     class Settings:
         name = "users"
         #validation_on_save = True  # Expensive Operation might not be need

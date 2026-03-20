@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from pymongo import AsyncMongoClient
 from beanie import init_beanie
+from starlette.middleware.cors import CORSMiddleware
 
 #Modules
 from config import settings
@@ -25,8 +26,21 @@ async def lifespan(_app: FastAPI):
     await client.aclose()
 
 app = FastAPI(lifespan=lifespan)
-app.include_router(user_router, prefix="/users", tags=["users"])
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://localhost:5173", # for frontend - react
+        "http://127.0.0.1:3000",
+    ], # defines host and port numbers for frontend and backend for in between browser connection.
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(user_router, prefix="/users", tags=["users"])
 
 # shows who is logged in, document records to user, filter by user_id
 

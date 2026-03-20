@@ -32,6 +32,11 @@ class UserRead(BaseModel):
     email: EmailStr
     creation_time: datetime
 
+"""Login input projection"""
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
+
     model_config = {"extra": "forbid"}
 # both base models
 def validate_user(doc: dict):

@@ -3,14 +3,15 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from beanie import PydanticObjectId
 
 from Auth.security import decode_access_token
-from models.user_document import User
+from models.user_document import User # beanie document model
 
+"""Reads JWT token, extracts user_id, query database."""
 bearer_scheme = HTTPBearer()
 
 
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
-) -> User:
+) -> User: # returns user object 
     token = credentials.credentials
 
     try:
@@ -27,7 +28,7 @@ async def get_current_user(
             detail="Invalid or expired token",
         )
 
-    user = await User.get(PydanticObjectId(user_id))
+    user = await User.get(PydanticObjectId(user_id)) # returns database object
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

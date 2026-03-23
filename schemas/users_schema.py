@@ -38,6 +38,11 @@ class UserLogin(BaseModel):
     password: str
 
     model_config = {"extra": "forbid"}
+
+class Token(BaseModel)
+    access_token: str
+    token_type : str
+    
 # both base models
 def validate_user(doc: dict):
     try:

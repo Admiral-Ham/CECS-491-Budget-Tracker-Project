@@ -6,6 +6,7 @@ from pymongo.errors import DuplicateKeyError
 
 from models.user_document import User
 from schemas.users_schema import UserCreate, UserRead, UserLogin
+from Auth.token import hash_password, verify_password, create_access_token
 
 router = APIRouter() #instantiates the router for frontend
 
@@ -44,6 +45,20 @@ async def register_user(user: UserCreate):
         raise HTTPException(status_code=409, detail="User name or email already exists")
 
     return user
+
+@router.post("/login", response_model=Token)
+async def login_user(credentials: UserLogin):
+    user = await User.find_one(User.email == credentials.email)
+    if not user or not verify_password(credentials.password, user.password_hash):
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+
+    access_token = create_access_token({"sub": str(user.id)})
+
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+    }
+
 
 @router.get("/{user_id}", response_model=UserRead)
 async def get_user(user_id: PydanticObjectId):

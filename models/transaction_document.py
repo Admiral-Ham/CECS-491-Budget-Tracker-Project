@@ -11,7 +11,6 @@ from bson.decimal128 import Decimal128
 
 # Local App
 from user_document import User
-from goal_document import Goal
 from budget_document import Budget
 from category_document import Category
 

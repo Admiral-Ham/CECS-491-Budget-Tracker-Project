@@ -6,14 +6,15 @@ from decimal import Decimal
 # Modules
 from pymongo import IndexModel, ASCENDING
 from pydantic import Field, field_validator, field_serializer, BaseModel
-from beanie import  Document, Link
+from beanie import  Document, Link, BackLink
 from bson.decimal128 import Decimal128
-
+from transaction_document import Transaction
 # Local  App
 from user_document import User
 
 class Goal(Document):
     user_id:        Link[User] # Stores user_id
+    transactions:   BackLink[Transaction]
     name:           str
     amount:         Annotated[Decimal, Field(decimal_places = 2)]
     saved:          Annotated[Decimal, Field(decimal_places = 2)]

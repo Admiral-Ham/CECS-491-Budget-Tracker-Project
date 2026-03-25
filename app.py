@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from pymongo import AsyncMongoClient
 from beanie import init_beanie
-from starlette.middleware.cors import CORSMiddleware
+from fastapi.middleware.cors import CORSMiddleware
 
 #Modules
 from config import settings
@@ -45,14 +45,12 @@ app.include_router(user_router, prefix="/users", tags=["users"])
 # shows who is logged in, document records to user, filter by user_id
 
 #testing login api
-"""@app.post("/login")
-def login():
-    data = request.json()
-    username = data.get("username")
-    password = data.get("password")
-
-    if username == "TechnicSolutions" and password == "1234":
-        return jsonify({"success": True, "message": "Login Ok"})
+"""@router.post("/login")
+async def login(data: UserLogin):
+   if data.email == "TechnicSolutions" and data.password == "1234":
+        return {
+            "success": True,
+            "message": "Login Ok"
+        }
     else:
-        return jsonify({"success": False, "message": "Login Failed"})"""
-
+        raise HTTPException(status_code=401, detail="Login Failed")"""

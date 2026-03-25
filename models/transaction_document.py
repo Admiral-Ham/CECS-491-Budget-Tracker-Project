@@ -123,3 +123,6 @@ class Transaction(Document):
                 )
 
         ]
+
+from goal_document import Goal
+Transaction.update_forward_refs()

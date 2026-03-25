@@ -28,12 +28,17 @@ class Budget(Document):
         name = "budgets"
         indexes = [
             IndexModel(
-                [("creation_time", ASCENDING)],
+                [("name", 1)],
+                name = "name",
+                unique = True
+            ),
+            IndexModel(
+                [("creation_time", 1)],
                 name = "creation_time",
             ),
             IndexModel(
                 [("user_id.$id", 1)],
-                name = "user"
+                name = "user",
             )
         ]
 

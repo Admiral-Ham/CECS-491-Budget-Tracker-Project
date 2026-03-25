@@ -1,9 +1,11 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from beanie import PydanticObjectId
+import jwt
 
-from Auth.security import decode_access_token
 from models.user_document import User # beanie document model
+from Auth.security import decode_access_token
+
 
 """Reads JWT token, extracts user_id, query database."""
 bearer_scheme = HTTPBearer()
@@ -22,7 +24,7 @@ async def get_current_user(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid token",
             )
-    except Exception:
+    except jwt.PyJWTError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired token",

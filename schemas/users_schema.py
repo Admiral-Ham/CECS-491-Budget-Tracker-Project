@@ -32,6 +32,8 @@ class UserRead(BaseModel):
     email: EmailStr
     creation_time: datetime
 
+    model_config = {"extra": "forbid"}
+
 """Login input projection"""
 class UserLogin(BaseModel):
     email: EmailStr

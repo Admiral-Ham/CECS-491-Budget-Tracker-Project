@@ -9,6 +9,7 @@ from budget_document import Budget
 
 class Category(Document):
     budget_id:      Link[Budget]
+    budget_name:    str
     name:           str
     limit:          Annotated[Decimal, Field(max_digits=14, decimal_places = 2)]
     spent:          Annotated[Decimal, Field(max_digits=14, decimal_places = 2)]
@@ -37,6 +38,7 @@ class Category(Document):
 
     class CatProjection(BaseModel):
         name:           str
+        budget_name:    str
         limit:          Annotated[Decimal, Field(max_digits=14, decimal_places = 2)]
         spent:          Annotated[Decimal, Field(max_digits=14, decimal_places = 2)]
         creation_time:  datetime
@@ -62,7 +64,8 @@ class Category(Document):
             IndexModel(
                 [("budget_id.$id", ASCENDING)],
                 name = "Budget"
-            )
+            ),
+        
         ]
 
 

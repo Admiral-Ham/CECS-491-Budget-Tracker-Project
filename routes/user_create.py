@@ -1,6 +1,6 @@
 # routes/user_create.py
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 #from beanie import PydanticObjectId
 from pymongo.errors import DuplicateKeyError
 

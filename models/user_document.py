@@ -3,6 +3,9 @@ from pydantic import EmailStr, Field, BaseModel
 from beanie import  Document
 from datetime import datetime, UTC
 
+def utc_now():
+    return datetime.now(UTC)
+
 class User(Document):
     # Name and email need to be unique
     name:           str

@@ -15,6 +15,7 @@ from routes.user_create import router as user_router
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     client = AsyncMongoClient(settings.MONGO_URI)
+    # _app.state.mongo_client = client #(optional)
     db = client[settings.DATABASE_NAME]
 
     await init_beanie(

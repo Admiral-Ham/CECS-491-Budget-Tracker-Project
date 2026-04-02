@@ -20,3 +20,6 @@ dist/
 *.egg-info/
 
 .vs
+test.budgets.json
+test.categories.json
+test.users.json

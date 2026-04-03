@@ -11,7 +11,7 @@ class User(Document):
     name:           str
     email:          EmailStr
     password_hash:  str
-    creation_time:  datetime = Field(default_factory=datetime.now(UTC))
+    creation_time:  datetime = Field(default_factory=utc_now)
 
     model_config = {
         "populate_by_name": True,
@@ -20,7 +20,7 @@ class User(Document):
     class UserProjection(BaseModel):
         name: str
         email: EmailStr
-        creation_time: datetime = Field(default_factory=datetime.utcnow)
+        creation_time: datetime = Field(default_factory=utc_now)
 
 
     class Settings:

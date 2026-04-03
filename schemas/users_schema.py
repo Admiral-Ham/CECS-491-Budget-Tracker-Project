@@ -41,7 +41,7 @@ class UserLogin(BaseModel):
 
     model_config = {"extra": "forbid"}
 
-class Token(BaseModel)
+class Token(BaseModel):
     access_token: str
     token_type : str
     

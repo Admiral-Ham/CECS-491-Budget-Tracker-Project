@@ -4,7 +4,7 @@ from beanie import PydanticObjectId
 import jwt
 
 from models.user_document import User # beanie document model
-from Auth.security import decode_access_token
+from Auth.token import decode_access_token
 
 
 """Reads JWT token, extracts user_id, query database."""

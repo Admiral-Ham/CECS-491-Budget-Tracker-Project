@@ -23,3 +23,6 @@ dist/
 test.budgets.json
 test.categories.json
 test.users.json
+
+#environment file
+.env

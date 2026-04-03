@@ -17,9 +17,9 @@ from category_document import Category
 
 class Transaction(Document):
     user_id:        Link[User] # Stores user_id
-    goal_id:        Optional[Link[Goal]] = None
-    budget_id:      Optional[Link[Budget]] = None
-    category_id:    Optional[Link[Category]] = None
+    goal_id:        Optional[Link["Goal"]] = None
+    budget_id:      Optional[Link["Budget"]] = None
+    category_id:    Optional[Link["Category"]] = None
     budget_name:    str
     cat_name:       str
     name:           str

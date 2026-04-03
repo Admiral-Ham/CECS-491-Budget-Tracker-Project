@@ -10,6 +10,9 @@ from budget_document import Budget
 from category_document import Category
 from transaction_document import Transaction
 from goal_document import Goal
+from dotenv import load_dotenv
+import os
+
 
 from pymongo import AsyncMongoClient
 import asyncio
@@ -100,9 +103,10 @@ def gen_budget_dict(name_id, name = "Unnamed Budget"):
     }
     return budget_doc
 
-def gen_category_dict(b_id, name = "Unnamed Category", limit=0, spent=0):
+def gen_category_dict(b_id, b_name, name = "Unnamed Category", limit=0, spent=0):
     doc = {
     "budget_id":    b_id,
+    "budget_name":  b_name,
     "name":         name,
     "limit":        limit,
     "spent":        spent,
@@ -209,7 +213,10 @@ async def create_upload_user_docs():
     print("\nInserted Users Successfully")
 
 async def main():
-    client = AsyncMongoClient("mongodb+srv://alberts_db_user....@testdatabase.1axf3iy.mongodb.net/")
+    load_dotenv(dotenv_path=".env")
+    c_string = os.getenv("mongo_db_string")
+    client = AsyncMongoClient(c_string)
+    print(c_string)
     db = client["test"]
 
     await init_beanie(
@@ -249,9 +256,9 @@ async def main():
     spent = randint(0, 999)
     
     #Generating And Inserting Categories
-    category_dict = gen_category_dict(budgets_docs[0].id, category_names[randint(0, len(category_names) - 1)], randint(spent, 1000), spent)
+    category_dict = gen_category_dict(budgets_docs[0].id, budgets_docs[0].name, category_names[randint(0, len(category_names) - 1)], randint(spent, 1000), spent)
     print("Inserting Category data\n")
-    cat = Category(**category_dict)
+    #cat = Category(**category_dict)
     #await cat.insert()
     print("Insert Successful\n")
     print(f"Cat Budget_id = {budgets_docs[0].id}\nCat Dict = {category_dict["budget_id"]}\n")

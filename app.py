@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from config import settings
 from models.user_document import User
 from routes.user_create import router as user_router
+from routes.category_routes import router as category_router
 
 #MONGO_URI = "mongodb://localhost:27017"
 #DB_NAME = "budgettracker"
@@ -42,6 +43,7 @@ app.add_middleware(
 )
 
 app.include_router(user_router, prefix="/users", tags=["users"])
+app.include_router(category_router, prefix="/categories", tags=["categories"])
 
 # shows who is logged in, document records to user, filter by user_id
 

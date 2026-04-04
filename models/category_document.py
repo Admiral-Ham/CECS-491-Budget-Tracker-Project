@@ -3,9 +3,14 @@ from typing import Annotated
 from pydantic import Field, field_validator,field_serializer, BaseModel
 from beanie import  Document, Link
 from bson.decimal128 import Decimal128
-from datetime import datetime
+
+from datetime import datetime, UTC
 from decimal import Decimal
-from budget_document import Budget
+from models.budget_document import Budget
+
+def utcnow():
+    return datetime.now(UTC)
+
 
 class Category(Document):
     budget_id:      Link[Budget]

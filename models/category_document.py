@@ -14,7 +14,7 @@ def utcnow():
 
 class Category(Document):
     budget_id:      Link[Budget]
-    budget_name:    str
+    #budget_name:    str
     name:           str
     limit:          Annotated[Decimal, Field(max_digits=14, decimal_places = 2)]
     spent:          Annotated[Decimal, Field(max_digits=14, decimal_places = 2)]

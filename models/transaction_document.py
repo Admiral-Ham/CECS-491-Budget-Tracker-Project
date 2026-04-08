@@ -20,8 +20,8 @@ class Transaction(Document):
     goal_id:        Optional[Link["Goal"]] = None
     budget_id:      Optional[Link["Budget"]] = None
     category_id:    Optional[Link["Category"]] = None
-    budget_name:    str
-    cat_name:       str
+    #budget_name:    str
+    #cat_name:       str
     name:           str
     amount:         Annotated[Decimal, Field(max_digits=14, decimal_places = 2)]
     creation_time:  datetime

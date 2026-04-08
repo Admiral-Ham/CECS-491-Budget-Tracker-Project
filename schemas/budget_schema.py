@@ -12,15 +12,31 @@ class Budget(BaseModel):
     categories: List[str]
     created_on: datetime
 
+class BudgetCreate(BaseModel):
+    name: str = Field(min_length=1, max_length=100)
 
     model_config = {
         "populate_by_name": True,
         "extra": "forbid"
     }
 
-    def validate_budget(doc: dict):
+class BudgetRead(BaseModel):
+    id: str
+    user_id: str
+    name: str
+    creation_time: datetime
+
+    model_config = {"from_attributes": True}
+
+class BudgetPatch(BaseModel):
+    name: str | None = Field(default=None, min_length=1, max_length=100)
+
+    model_config = {"extra": "forbid"}
+
+
+    """def validate_budget(doc: dict):
         try: 
             user = Budget.model_validate(doc)
             return True, []
         except ValidationError as e:
-            return False, [str(e)]
+            return False, [str(e)]"""

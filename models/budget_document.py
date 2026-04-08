@@ -1,14 +1,18 @@
-from pymongo import IndexModel, ASCENDING
-from pydantic import Field, BaseModel
+from datetime import datetime, UTC
 from beanie import  Document, Link, BackLink
-from datetime import datetime
-from user_document import User
+from pydantic import Field, BaseModel
+from pymongo import IndexModel, ASCENDING
+
+from models.user_document import User
+
+def utc_now():
+    return datetime.now(UTC)
 
 class Budget(Document):
-    user_id:        Link[User] # Store user_id
-    categories:     BackLink["Category"] = Field(original_field="budget_id")
-    name:           str
-    creation_time:  datetime
+    user_id: Link[User] # Store user_id
+    categories: BackLink["Category"] = Field(original_field="budget_id")
+    name: str
+    creation_time: datetime = Field(default_factory=utc_now)
 
     model_config = {
         "populate_by_name": True,
@@ -16,31 +20,25 @@ class Budget(Document):
     }
 
     class BudgetProjection(BaseModel):
+        id: str
         name: str
-        creation_time:  datetime
+        creation_time: datetime
 
-        """Budget Patch basemodel allows a user to edit budget names up to 100 names."""
-    class BudgetPatch(BaseModel): # multiple budget edits model
-        name: str | None = Field(default=None, min_length=1, max_length=100)
-        model_config= {"extra": "forbid"}
-
+"""One user cannot have duplicate budget names and different users can both have same budget names"""
     class Settings:
         name = "budgets"
         indexes = [
             IndexModel(
-                [("name", 1)],
-                name = "name",
-                unique = True
+            [("user_id.$id", ASCENDING)], #[("name", 1)],
+                name="user_id_index",
             ),
             IndexModel(
-                [("creation_time", 1)],
-                name = "creation_time",
+            [("creation_time", ASCENDING)],
+                name ="creation_time_index",
             ),
             IndexModel(
-                [("user_id.$id", 1)],
-                name = "user",
-            )
+            [("user_id.$id", ASCENDING), ("name", ASCENDING)],
+                name ="unique_budget_name_per_user",
+                unique=True,
+            ),
         ]
-
-from category_document import Category
-Budget.update_forward_refs()

@@ -26,7 +26,12 @@ class Budget(Document):
         name: str
         creation_time: datetime
 
+<<<<<<< HEAD
     class Settings:
+=======
+"""One user cannot have duplicate budget names and different users can both have same budget names"""
+class Settings:
+>>>>>>> 38b7fb4 (budget_routes update with comments and docstrings)
         name = "budgets"
         indexes = [
             IndexModel(

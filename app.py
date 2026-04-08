@@ -6,8 +6,11 @@ from fastapi.middleware.cors import CORSMiddleware
 
 #Modules
 from config import settings
+from models.budget_document import Budget
+from models.category_document import Category
 from models.user_document import User
 from routes.user_create import router as user_router
+from routes.budget_routes import router as budget_router
 from routes.category_routes import router as category_router
 
 #MONGO_URI = "mongodb://localhost:27017"
@@ -21,7 +24,7 @@ async def lifespan(_app: FastAPI):
 
     await init_beanie(
         database=db,
-        document_models=[User],
+        document_models=[User, Budget, Category, ]
     ) #contains document models, can add more document models on initializing beanie
     yield
 
@@ -43,6 +46,7 @@ app.add_middleware(
 )
 
 app.include_router(user_router, prefix="/users", tags=["users"])
+app.include_router(budget_router, prefix="/budgets", tags=["budgets"])
 app.include_router(category_router, prefix="/categories", tags=["categories"])
 
 # shows who is logged in, document records to user, filter by user_id

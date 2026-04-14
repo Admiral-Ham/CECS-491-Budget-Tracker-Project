@@ -24,7 +24,7 @@ class Budget(Document):
         name: str
         creation_time: datetime
 
-"""One user cannot have duplicate budget names and different users can both have same budget names"""
+    """One user cannot have duplicate budget names and different users can both have same budget names"""
     class Settings:
         name = "budgets"
         indexes = [
@@ -42,3 +42,6 @@ class Budget(Document):
                 unique=True,
             ),
         ]
+
+from category_document import Category
+Budget.update_forward_refs()

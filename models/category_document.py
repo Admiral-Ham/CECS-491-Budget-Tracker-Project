@@ -54,4 +54,8 @@ class Category(Document):
                 [("budget_id.$id", ASCENDING)],
                 name="Budget"
             ),
+<<<<<<< HEAD
         ]
+=======
+        ]
+>>>>>>> 81f6451 (Final backend working version)

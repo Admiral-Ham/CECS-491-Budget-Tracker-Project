@@ -25,7 +25,7 @@ class CategoryRead(BaseModel): # for GET API RESPONSE
     creation_time: datetime
 
     model_config = {
-        "from_attributes": True
+        "from_attributes": True, "extra": "forbid"
     }
 
 class CategoryUpdate(BaseModel): # for PUT/PATCH RESPONSE
@@ -34,14 +34,4 @@ class CategoryUpdate(BaseModel): # for PUT/PATCH RESPONSE
     limit : Decimal | None = Field(default=None, max_digits=14, decimal_places=2)
     spent : Decimal | None = Field(default=None, max_digits=14, decimal_places=2)
 
-    model_config = {
-        "extra": "forbid"
-    }
-
-
-    def validate_category(doc: dict):
-        try: 
-            user = Category.model_validate(doc)
-            return True, []
-        except ValidationError as e:
-            return False, [str(e)]
+    model_config = {"extra": "forbid"}

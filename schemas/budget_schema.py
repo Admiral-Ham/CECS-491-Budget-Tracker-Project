@@ -1,7 +1,7 @@
 from typing import List, Optional
 from pydantic import BaseModel, Field, ValidationError
 from datetime import datetime
-from schemas.category_schema import Category
+from schemas.category_schema import CategoryRead
 from datetime import datetime
 
 class Budget(BaseModel):

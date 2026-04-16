@@ -27,11 +27,15 @@ class Budget(Document):
         creation_time: datetime
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     class Settings:
 =======
 """One user cannot have duplicate budget names and different users can both have same budget names"""
 class Settings:
 >>>>>>> 38b7fb4 (budget_routes update with comments and docstrings)
+=======
+    class Settings:
+>>>>>>> 81f6451 (Final backend working version)
         name = "budgets"
         indexes = [
             IndexModel(
@@ -50,4 +54,8 @@ class Settings:
         ]
 
 from models.category_document import Category
+<<<<<<< HEAD
 Budget.model_rebuild()
+=======
+Budget.model_rebuild()
+>>>>>>> 81f6451 (Final backend working version)

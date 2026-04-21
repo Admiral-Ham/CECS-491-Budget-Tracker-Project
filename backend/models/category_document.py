@@ -4,7 +4,7 @@ from typing import Annotated
 
 from beanie import Document, Link
 from bson.decimal128 import Decimal128
-from pydantic import BaseModel, Field, field_validator, field_serializer
+from pydantic import Field, field_validator, field_serializer
 from pymongo import ASCENDING, IndexModel
 
 from models.budget_document import Budget

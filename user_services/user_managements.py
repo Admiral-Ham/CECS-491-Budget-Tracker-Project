@@ -1,5 +1,5 @@
 from data.db import db
-from schemas.users_schema import User
+from backend.schemas.users_schema import User
 from pydantic import ValidationError
 users_collection = db.userinfo
 

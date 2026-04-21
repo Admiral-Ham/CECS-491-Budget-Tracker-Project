@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from pymongo import AsyncMongoClient
 from beanie import init_beanie
@@ -6,16 +7,18 @@ from fastapi.middleware.cors import CORSMiddleware
 
 #Modules
 from config import settings
-from models.transaction_document import Transaction
-from models.goal_document import Goal
+
+from models.user_document import User
 from models.budget_document import Budget
 from models.category_document import Category
-from models.user_document import User
+from models.transaction_document import Transaction
+from models.goal_document import Goal
+
 #Routing/FastAPI
 from routes.transaction_routes import router as transaction_router
-from routes.user_create import router as user_router
 from routes.budget_routes import router as budget_router
 from routes.category_routes import router as category_router
+from routes.user_create import router as user_router
 
 #MONGO_URI = "mongodb://localhost:27017"
 #DB_NAME = "budgettracker"

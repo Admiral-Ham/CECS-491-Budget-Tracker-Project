@@ -1,3 +1,4 @@
+import { api } from "../api/client";
 import DesktopLayout from "../components/DesktopLayout";
 import { useNavigate } from "react-router-dom";
 
@@ -5,13 +6,12 @@ export default function Settings() {
   const nav = useNavigate();
 
   function onLearn() {
-    window.open(
-      "https://consumer.gov/your-money/making-budget"
-    );
+    window.open("https://consumer.gov/your-money/making-budget");
   }
 
   function onLogout() {
-    nav("/login", { replace: true });
+    api.logout(); //clears JWT token
+    nav("/", { replace: true });
   }
 
   return (

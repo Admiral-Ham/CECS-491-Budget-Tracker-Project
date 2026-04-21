@@ -1,4 +1,4 @@
-from schemas.transactions_schema import Transaction
+from backend.schemas import Transaction
 from data.db import db
 from datetime import datetime
 from pydantic import ValidationError

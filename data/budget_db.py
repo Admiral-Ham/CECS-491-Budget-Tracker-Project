@@ -1,6 +1,6 @@
 from data.db import db
 from datetime import datetime
-from schemas.budget_schema import Budget
+from backend.schemas.budget_schema import Budget
 from pydantic import ValidationError
 
 class BudgetModel():

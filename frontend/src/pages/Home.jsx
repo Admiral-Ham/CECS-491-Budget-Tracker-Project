@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { PieChart } from "@mui/x-charts/PieChart";
 import DesktopLayout from "../components/DesktopLayout";
-import { api } from "../api/client";
 
 const card = {
-  background: "#0f172a",
-  border: "1px solid rgba(255,255,255,0.08)",
-  borderRadius: 16,
+  background: "var(--surface)",
+  border: "1px solid var(--border)",
+  borderRadius: 18,
   padding: 16,
+  backdropFilter: "blur(6px)",
 };
 
 const palette = [
@@ -23,7 +23,6 @@ const palette = [
 
 const pieheight = 280;
 const piewidth = 400;
-
 const panels = ["Top Categories", "Goals"];
 
 function ButtonToggle({ active, onClick, children }) {
@@ -31,10 +30,10 @@ function ButtonToggle({ active, onClick, children }) {
     <button
       onClick={onClick}
       style={{
-        background: active ? "#ffffff1a" : "transparent",
-        border: active ? "1px solid #ffffff26" : "1px solid transparent",
+        background: active ? "var(--surface-soft)" : "transparent",
+        border: active ? "1px solid var(--border)" : "1px solid transparent",
         borderRadius: 8,
-        color: active ? "#f1f5f9" : "#64748b",
+        color: active ? "var(--text)" : "var(--text-muted)",
         cursor: "pointer",
         fontSize: 12,
         fontWeight: 600,
@@ -89,20 +88,20 @@ const modalOverlay = {
 };
 
 const modalBox = {
-  background: "#1e293b",
+  background: "var(--surface)",
   borderRadius: 16,
   padding: 24,
   width: 360,
-  border: "1px solid rgba(255,255,255,0.1)",
+  border: "1px solid var(--border)",
 };
 
 const modalInput = {
   width: "100%",
   padding: "10px 12px",
   borderRadius: 8,
-  border: "1px solid rgba(255,255,255,0.2)",
-  background: "#0f172a",
-  color: "white",
+  border: "1px solid var(--border)",
+  background: "var(--surface-soft)",
+  color: "var(--text)",
   fontSize: 14,
   marginTop: 6,
   boxSizing: "border-box",
@@ -110,7 +109,7 @@ const modalInput = {
 
 const modalLabel = {
   display: "block",
-  color: "#94a3b8",
+  color: "var(--text-muted)",
   fontSize: 13,
   fontWeight: 500,
   marginTop: 16,
@@ -120,8 +119,8 @@ const modalPrimaryBtn = (enabled) => ({
   padding: "8px 16px",
   borderRadius: 8,
   border: "none",
-  background: enabled ? "#14b8a6" : "rgba(255,255,255,0.08)",
-  color: enabled ? "#041012" : "#475569",
+  background: enabled ? "var(--success)" : "var(--surface-soft)",
+  color: enabled ? "#041012" : "var(--text-muted)",
   cursor: enabled ? "pointer" : "default",
   fontSize: 13,
   fontWeight: 700,
@@ -130,9 +129,9 @@ const modalPrimaryBtn = (enabled) => ({
 const modalSecondaryBtn = {
   padding: "8px 14px",
   borderRadius: 8,
-  border: "1px solid rgba(255,255,255,0.12)",
+  border: "1px solid var(--border)",
   background: "transparent",
-  color: "#94a3b8",
+  color: "var(--text-muted)",
   cursor: "pointer",
   fontSize: 13,
 };
@@ -164,7 +163,6 @@ function GoalFormModal({ goal, onSave, onDelete, onClose }) {
   const [monthlyAllocation, setMonthlyAllocation] = useState(
     goal?.monthlyAllocation ? String(goal.monthlyAllocation) : ""
   );
-  const [notes, setNotes] = useState(goal?.notes ?? "");
 
   const canSave = name.trim() && target && parseFloat(target) > 0;
 
@@ -175,16 +173,14 @@ function GoalFormModal({ goal, onSave, onDelete, onClose }) {
   return (
     <div style={modalOverlay} onClick={onClose}>
       <div style={modalBox} onClick={(e) => e.stopPropagation()}>
-        <h2 style={{ margin: "0 0 4px 0", fontSize: 18, color: "#f1f5f9" }}>
+        <h2 style={{ margin: "0 0 4px 0", fontSize: 18, color: "var(--text)" }}>
           {isEdit ? "Edit Goal" : "New Goal"}
         </h2>
-        <p style={{ margin: "0 0 4px 0", fontSize: 13, color: "#64748b" }}>
+        <p style={{ margin: "0 0 4px 0", fontSize: 13, color: "var(--text-muted)" }}>
           {isEdit ? "Update your savings goal." : "What are you saving toward?"}
         </p>
 
-        <label style={modalLabel}>
-          Goal Name
-        </label>
+        <label style={modalLabel}>Goal Name</label>
         <input
           style={modalInput}
           placeholder="e.g. New Laptop"
@@ -192,9 +188,7 @@ function GoalFormModal({ goal, onSave, onDelete, onClose }) {
           onChange={(e) => setName(e.target.value)}
         />
 
-        <label style={modalLabel}>
-          Target Amount
-        </label>
+        <label style={modalLabel}>Target Amount</label>
         <input
           type="number"
           min="1"
@@ -205,9 +199,7 @@ function GoalFormModal({ goal, onSave, onDelete, onClose }) {
           onChange={(e) => setTarget(e.target.value)}
         />
 
-        <label style={modalLabel}>
-          Monthly Allocation (optional)
-        </label>
+        <label style={modalLabel}>Monthly Allocation (optional)</label>
         <input
           type="number"
           min="1"
@@ -219,19 +211,23 @@ function GoalFormModal({ goal, onSave, onDelete, onClose }) {
         />
 
         {eta && (
-          <div style={{
-            marginTop: 8,
-            padding: "7px 10px",
-            borderRadius: 6,
-            background: "rgba(20,184,166,0.08)",
-            border: "1px solid rgba(20,184,166,0.2)",
-            fontSize: 12,
-            color: "#14b8a6",
-          }}>
-            {"At $"}{allocationVal.toLocaleString()}{" a month you'll reach your goal by "}{eta}
+          <div
+            style={{
+              marginTop: 8,
+              padding: "7px 10px",
+              borderRadius: 6,
+              background: "rgba(20,184,166,0.08)",
+              border: "1px solid rgba(20,184,166,0.2)",
+              fontSize: 12,
+              color: "var(--success)",
+            }}
+          >
+            {"At $"}
+            {allocationVal.toLocaleString()}
+            {" a month you'll reach your goal by "}
+            {eta}
           </div>
         )}
-
 
         <div style={{ display: "flex", gap: 8, marginTop: 24, alignItems: "center" }}>
           {isEdit && (
@@ -243,14 +239,16 @@ function GoalFormModal({ goal, onSave, onDelete, onClose }) {
             <button style={modalSecondaryBtn} onClick={onClose}>Cancel</button>
             <button
               style={modalPrimaryBtn(canSave)}
-              onClick={() => canSave && onSave({
-                id: goal?.id ?? newId(),
-                name: name.trim(),
-                target: parseFloat(target),
-                monthlyAllocation: allocationVal > 0 ? allocationVal : null,
-                notes: notes.trim(),
-                saved: goal?.saved ?? 0,
-              })}
+              onClick={() =>
+                canSave &&
+                onSave({
+                  id: goal?.id ?? newId(),
+                  name: name.trim(),
+                  target: parseFloat(target),
+                  monthlyAllocation: allocationVal > 0 ? allocationVal : null,
+                  saved: goal?.saved ?? 0,
+                })
+              }
             >
               {isEdit ? "Save" : "Create Goal"}
             </button>
@@ -269,16 +267,14 @@ function ContributeModal({ goal, onSave, onClose }) {
   return (
     <div style={modalOverlay} onClick={onClose}>
       <div style={modalBox} onClick={(e) => e.stopPropagation()}>
-        <h2 style={{ margin: "0 0 4px 0", fontSize: 18, color: "#f1f5f9" }}>
+        <h2 style={{ margin: "0 0 4px 0", fontSize: 18, color: "var(--text)" }}>
           Add Contribution
         </h2>
-        <p style={{ margin: "0 0 4px 0", fontSize: 13, color: "#64748b" }}>
+        <p style={{ margin: "0 0 4px 0", fontSize: 13, color: "var(--text-muted)" }}>
           {goal.name} · ${goal.saved.toLocaleString()} saved of ${goal.target.toLocaleString()}
         </p>
 
-        <label style={modalLabel}>
-          Amount
-        </label>
+        <label style={modalLabel}>Amount</label>
         <input
           type="number"
           min="0.01"
@@ -347,13 +343,16 @@ function GoalsPanel({ budgetId }) {
     <>
       <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 10 }}>
         <button
-          onClick={() => { setEditGoal(null); setShowForm(true); }}
+          onClick={() => {
+            setEditGoal(null);
+            setShowForm(true);
+          }}
           style={{
             padding: "4px 10px",
             borderRadius: 6,
             border: "1px solid rgba(20,184,166,0.5)",
             background: "rgba(20,184,166,0.12)",
-            color: "#14b8a6",
+            color: "var(--success)",
             cursor: "pointer",
             fontSize: 12,
             fontWeight: 600,
@@ -364,54 +363,79 @@ function GoalsPanel({ budgetId }) {
       </div>
 
       {goals.length === 0 ? (
-        <div style={{
-          display: "flex", flexDirection: "column", alignItems: "center",
-          justifyContent: "center", height: "70%",
-        }}>
-          <span style={{ color: "#94a3b8", textAlign: "center" }}>
-            No goals yet.
-          </span>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            height: "70%",
+          }}
+        >
+          <span style={{ color: "var(--text-muted)", textAlign: "center" }}>No goals yet.</span>
         </div>
       ) : (
         <div style={{ overflowY: "auto", maxHeight: 210, paddingRight: 4 }}>
           {goals.map((g, i) => {
             const pct = Math.min((g.saved / g.target) * 100, 100);
             const done = g.saved >= g.target;
-            const color = done ? "#11d899" : palette[i % palette.length];
+            const color = done ? "var(--success)" : palette[i % palette.length];
 
             return (
               <div key={g.id} style={{ marginBottom: 14 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 5 }}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: 5,
+                  }}
+                >
                   <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <span style={{ width: 8, height: 8, borderRadius: "50%", background: color, display: "inline-block", flexShrink: 0 }} />
-                    <span style={{ color: "#e2e8f0", fontSize: 13, fontWeight: 500 }}>{g.name}</span>
-                    {done && (
-                      <span style={{
-                        background: "rgba(17,216,153,0.15)", border: "1px solid rgba(17,216,153,0.4)",
-                        borderRadius: 4, color: "#11d899", fontSize: 10, fontWeight: 700,
-                        padding: "1px 5px", letterSpacing: "0.04em",
-                      }}>DONE</span>
-                    )}
+                    <span
+                      style={{
+                        width: 8,
+                        height: 8,
+                        borderRadius: "50%",
+                        background: color,
+                        display: "inline-block",
+                        flexShrink: 0,
+                      }}
+                    />
+                    <span style={{ color: "var(--text)", fontSize: 13, fontWeight: 500 }}>{g.name}</span>
                   </div>
                   <div style={{ display: "flex", gap: 6 }}>
                     {!done && (
                       <button
                         onClick={() => setContributeGoal(g)}
                         style={{
-                          padding: "2px 8px", borderRadius: 5, fontSize: 11, fontWeight: 600,
-                          border: "1px solid rgba(20,184,166,0.4)", background: "rgba(20,184,166,0.1)",
-                          color: "#14b8a6", cursor: "pointer",
+                          padding: "2px 8px",
+                          borderRadius: 5,
+                          fontSize: 11,
+                          fontWeight: 600,
+                          border: "1px solid rgba(20,184,166,0.4)",
+                          background: "rgba(20,184,166,0.1)",
+                          color: "var(--success)",
+                          cursor: "pointer",
                         }}
                       >
                         + Add
                       </button>
                     )}
                     <button
-                      onClick={() => { setEditGoal(g); setShowForm(true); }}
+                      onClick={() => {
+                        setEditGoal(g);
+                        setShowForm(true);
+                      }}
                       style={{
-                        padding: "2px 8px", borderRadius: 5, fontSize: 11, fontWeight: 600,
-                        border: "1px solid rgba(255,255,255,0.12)", background: "transparent",
-                        color: "#64748b", cursor: "pointer",
+                        padding: "2px 8px",
+                        borderRadius: 5,
+                        fontSize: 11,
+                        fontWeight: 600,
+                        border: "1px solid var(--border)",
+                        background: "transparent",
+                        color: "var(--text-muted)",
+                        cursor: "pointer",
                       }}
                     >
                       Edit
@@ -419,37 +443,45 @@ function GoalsPanel({ budgetId }) {
                   </div>
                 </div>
 
-                <div style={{ background: "rgba(255,255,255,0.06)", borderRadius: 4, height: 6, overflow: "hidden" }}>
-                  <div style={{ background: color, width: `${pct}%`, height: "100%", borderRadius: 4, transition: "width 0.4s ease" }} />
+                <div
+                  style={{
+                    background: "var(--surface-soft)",
+                    borderRadius: 4,
+                    height: 6,
+                    overflow: "hidden",
+                  }}
+                >
+                  <div
+                    style={{
+                      background: color,
+                      width: `${pct}%`,
+                      height: "100%",
+                      borderRadius: 4,
+                      transition: "width 0.4s ease",
+                    }}
+                  />
                 </div>
 
-                <div style={{ marginTop: 4, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span style={{ fontSize: 11, color: "#475569" }}>
+                <div
+                  style={{
+                    marginTop: 4,
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <span style={{ fontSize: 11, color: "var(--text-muted)" }}>
                     {g.monthlyAllocation && !done
                       ? `$${g.monthlyAllocation.toLocaleString()}/mo allocated`
-                      : (g.notes || "")}
+                      : ""}
                   </span>
-                  <span style={{ fontSize: 11, color: "#64748b" }}>
-                    <span style={{ color: done ? "#11d899" : "#e2e8f0", fontWeight: 600 }}>
+                  <span style={{ fontSize: 11, color: "var(--text-muted)" }}>
+                    <span style={{ color: done ? "var(--success)" : "var(--text)", fontWeight: 600 }}>
                       ${g.saved.toLocaleString()}
                     </span>
                     {" / "}${g.target.toLocaleString()}
                   </span>
                 </div>
-
-                {g.monthlyAllocation && !done && (() => {
-                  const rem = g.target - g.saved;
-                  const months = rem > 0 ? Math.ceil(rem / g.monthlyAllocation) : 0;
-                  if (!months) return null;
-                  const now = new Date();
-                  const etaDate = new Date(now.getFullYear(), now.getMonth() + months, 1);
-                  const etaStr = etaDate.toLocaleDateString("en-US", { month: "short", year: "numeric" });
-                  return (
-                    <div style={{ marginTop: 2, fontSize: 11, color: "#334155", textAlign: "right" }}>
-                      On track for <span style={{ color: "#14b8a6" }}>{etaStr}</span>
-                    </div>
-                  );
-                })()}
               </div>
             );
           })}
@@ -461,7 +493,10 @@ function GoalsPanel({ budgetId }) {
           goal={editGoal}
           onSave={handleSave}
           onDelete={handleDelete}
-          onClose={() => { setShowForm(false); setEditGoal(null); }}
+          onClose={() => {
+            setShowForm(false);
+            setEditGoal(null);
+          }}
         />
       )}
 
@@ -476,46 +511,84 @@ function GoalsPanel({ budgetId }) {
   );
 }
 
-export default function Home() {
-  const [categories, setCategories] = useState([]);
-  const [transactions, setTransactions] = useState([]);
-  const [currentBudgetId, setCurrentBudgetId] = useState(null);
-  const [activePanel, setActivePanel] = useState(panels[0]);
+const pieWrap = {
+  position: "relative",
+  width: piewidth,
+  maxWidth: "100%",
+  margin: "0 auto",
+};
 
-  const loadData = async () => {
-    try {
-      const budgets = await api.getBudgets();
-      let budgetId = await api.getCurrentBudgetId();
+const pieCenterLabel = {
+  position: "absolute",
+  inset: 0,
+  display: "grid",
+  placeItems: "center",
+  textAlign: "center",
+  color: "var(--text)",
+  fontWeight: 700,
+  pointerEvents: "none",
+  padding: "0 16px",
+};
 
-      if (!budgetId && budgets.length > 0) {
-        budgetId = budgets[0].id;
-        await api.setCurrentBudgetId(budgetId);
-      }
+const metricLabel = {
+  color: "var(--text-muted)",
+  fontSize: 11,
+  fontWeight: 700,
+  letterSpacing: "0.12em",
+  textTransform: "uppercase",
+  marginBottom: 8,
+};
 
-      setCurrentBudgetId(budgetId || null);
+const metricValue = {
+  color: "var(--text)",
+  fontSize: 26,
+  fontWeight: 700,
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
+};
 
-      if (!budgetId) {
-        setCategories([]);
-        setTransactions([]);
-        return;
-      }
+const readHomeData = () => {
+  if (typeof window === "undefined") {
+    return {
+      categories: [],
+      transactions: [],
+      currentBudgetId: null,
+    };
+  }
 
-      const [cats, txs] = await Promise.all([
-        api.getCategories(budgetId),
-        api.getTransactions(budgetId),
-      ]);
+  const categories = JSON.parse(localStorage.getItem("categories") || "[]");
+  const transactions = JSON.parse(localStorage.getItem("transactions") || "[]");
+  const currentBudgetId = (() => {
+    const value = localStorage.getItem("currentBudgetId");
+    return value ? parseInt(value, 10) : null;
+  })();
 
-      setCategories(cats);
-      setTransactions(txs);
-    } catch (error) {
-      console.error("Failed to load home data:", error);
-    }
+  if (!currentBudgetId) {
+    return {
+      categories: [],
+      transactions: [],
+      currentBudgetId: null,
+    };
+  }
+
+  return {
+    categories: categories.filter((category) => category.budgetId === currentBudgetId),
+    transactions: transactions.filter((transaction) => transaction.budgetId === currentBudgetId),
+    currentBudgetId,
   };
+};
 
-  useEffect(() => {loadData();
-    const handler = () => loadData();
+export default function Home() {
+  const [homeData, setHomeData] = useState(() => readHomeData());
+  const [activePanel, setActivePanel] = useState(panels[0]);
+  const { categories, transactions, currentBudgetId } = homeData;
+
+  useEffect(() => {
+    const handler = () => setHomeData(readHomeData());
     window.addEventListener("budget-data-updated", handler);
-    return () => window.removeEventListener("budget-data-updated", handler);},[]);
+    return () => window.removeEventListener("budget-data-updated", handler);
+  }, []);
 
   const { totalSpent, chartData, sortedData, sortedTransactions, categoryMeta } = useMemo(() => {
     const now = new Date();
@@ -572,41 +645,37 @@ export default function Home() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
+            gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
             gap: 16,
           }}
         >
           <div style={card}>
-            <div style={{ color: "#94a3b8", fontSize: 12, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 8 }}>
-              This Month Spent
-            </div>
-            <div style={{ color: "#f1f5f9", fontSize: 24, fontWeight: 700 }}>
-              ${totalSpent.toLocaleString()}
-            </div>
+            <div style={metricLabel}>This Month Spent</div>
+            <div style={metricValue}>${totalSpent.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2, })}</div>
           </div>
 
           <div style={card}>
-            <div style={{ color: "#94a3b8", fontSize: 12, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 8 }}>
-              Income
-            </div>
-            <div style={{ color: "#f1f5f9", fontSize: 24, fontWeight: 700 }}>
-              ${income.toLocaleString()}
-            </div>
+            <div style={metricLabel}>Income</div>
+            <div style={metricValue}>${income.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2, })}</div>
           </div>
 
           <div style={card}>
-            <div style={{ color: "#94a3b8", fontSize: 12, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 8 }}>
-              Net
-            </div>
-            <div style={{ color: net >= 0 ? "#1ccb94" : "#ef4444", fontSize: 24, fontWeight: 700 }}>
-              {net >= 0 ? "+" : ""}${net.toLocaleString()}
+            <div style={metricLabel}>Net</div>
+            <div
+              style={{
+                color: net >= 0 ? "var(--success)" : "var(--danger)",
+                fontSize: 26,
+                fontWeight: 700,
+              }}
+            >
+              {net >= 0 ? "+" : "-"}${Math.abs(net).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2, })}
             </div>
           </div>
         </div>
 
         {!currentBudgetId ? (
           <div style={{ ...card, padding: 32, textAlign: "center" }}>
-            <p style={{ color: "#94a3b8", marginBottom: 16 }}>
+            <p style={{ color: "var(--text-muted)", marginBottom: 16 }}>
               No budget selected. Create a budget to get started.
             </p>
           </div>
@@ -615,21 +684,21 @@ export default function Home() {
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "1.2fr 0.8fr",
+                gridTemplateColumns: "minmax(320px, 1.2fr) minmax(220px, 0.8fr)",
                 gap: 16,
               }}
             >
               <div style={{ ...card, minHeight: 320, position: "relative" }}>
                 {chartData.length === 0 ? (
-                  <div style={{ color: "#94a3b8", fontSize: 14 }}>
+                  <div style={{ color: "var(--text-muted)", fontSize: 14 }}>
                     No transactions this month yet.
                   </div>
                 ) : (
-                  <>
+                  <div style={pieWrap}>
                     <PieChart
                       series={[
                         {
-                          innerRadius: 70,
+                          innerRadius: 80,
                           outerRadius: 100,
                           data: chartData,
                         },
@@ -638,35 +707,46 @@ export default function Home() {
                       height={pieheight}
                       hideLegend
                     />
-                    <div
-                      style={{
-                        position: "absolute",
-                        top: "45%",
-                        left: "50%",
-                        transform: "translate(-50%, -50%)",
-                        textAlign: "center",
-                        color: "#ffffff",
-                        fontSize: 22,
-                        fontWeight: 600,
-                      }}
-                    >
-                      Expenses
-                      <br />
-                      ${totalSpent.toLocaleString()}
+                    <div style={pieCenterLabel}>
+                      <div>
+                        <div
+                          style={{
+                            fontSize: 11,
+                            letterSpacing: "0.08em",
+                            textTransform: "uppercase",
+                            color: "var(--text-muted)",
+                            marginBottom: 6,
+                            fontWeight: 700,
+                          }}
+                        >
+                          Expenses
+                        </div>
+                        <div
+                          style={{
+                            fontSize: 34,
+                            lineHeight: 1,
+                            fontWeight: 700,
+                            whiteSpace: "nowrap",
+                            letterSpacing: "-0.02em",
+                          }}
+                        >
+                          ${totalSpent.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2, })}
+                        </div>
+                      </div>
                     </div>
-                  </>
+                  </div>
                 )}
               </div>
 
               <div style={{ ...card, minHeight: 320 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
                   <ToggleGroup active={activePanel} setActive={setActivePanel} />
                 </div>
 
                 {activePanel === "Top Categories" && (
                   <>
                     {sortedData.length === 0 ? (
-                      <div style={{ color: "#94a3b8", fontSize: 14 }}>
+                      <div style={{ color: "var(--text-muted)", fontSize: 14 }}>
                         No transactions this month yet.
                       </div>
                     ) : (
@@ -674,15 +754,46 @@ export default function Home() {
                         const pct = Math.round((item.value / totalSpent) * 100);
                         return (
                           <div key={item.id} style={{ marginBottom: 14 }}>
-                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                            <div
+                              style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                                marginBottom: 6,
+                              }}
+                            >
                               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                                <span style={{ width: 8, height: 8, borderRadius: "50%", background: item.color, display: "inline-block" }} />
-                                <span style={{ color: "#e2e8f0", fontSize: 13 }}>{item.label}</span>
+                                <span
+                                  style={{
+                                    width: 8,
+                                    height: 8,
+                                    borderRadius: "50%",
+                                    background: item.color,
+                                    display: "inline-block",
+                                    boxShadow: "0 0 0 3px rgba(0,0,0,0.06)",
+                                  }}
+                                />
+                                <span style={{ color: "var(--text)", fontSize: 13 }}>{item.label}</span>
                               </div>
-                              <span style={{ color: "#94a3b8", fontSize: 13 }}>${item.value}</span>
+                              <span style={{ color: "var(--text-muted)", fontSize: 13 }}>${item.value}</span>
                             </div>
-                            <div style={{ background: "rgba(255,255,255,0.06)", borderRadius: 4, height: 4, overflow: "hidden" }}>
-                              <div style={{ background: item.color, width: `${pct}%`, height: "100%", borderRadius: 4 }} />
+                            <div
+                              style={{
+                                background: "var(--surface-soft)",
+                                borderRadius: 999,
+                                height: 4,
+                                overflow: "hidden",
+                                border: "1px solid var(--border)",
+                              }}
+                            >
+                              <div
+                                style={{
+                                  background: item.color,
+                                  width: `${pct}%`,
+                                  height: "100%",
+                                  borderRadius: 999,
+                                }}
+                              />
                             </div>
                           </div>
                         );
@@ -691,28 +802,37 @@ export default function Home() {
                   </>
                 )}
 
-                {activePanel === "Goals" && (
-                  <GoalsPanel budgetId={currentBudgetId} />
-                )}
+                {activePanel === "Goals" && <GoalsPanel budgetId={currentBudgetId} />}
               </div>
             </div>
 
             <div style={{ ...card, minHeight: 240 }}>
-              <div style={{ color: "#94a3b8", fontSize: 12, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 16 }}>
+              <div
+                style={{
+                  color: "var(--text-muted)",
+                  fontSize: 12,
+                  fontWeight: 600,
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                  marginBottom: 16,
+                }}
+              >
                 Recent Transactions
               </div>
 
-              <div style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 2fr 1.5fr 1fr",
-                padding: "0 8px 10px",
-                borderBottom: "1px solid rgba(255,255,255,0.06)",
-                color: "#64748b",
-                fontSize: 11,
-                fontWeight: 600,
-                letterSpacing: "0.05em",
-                textTransform: "uppercase",
-              }}>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 2fr 1.5fr 1fr",
+                  padding: "0 8px 10px",
+                  borderBottom: "1px solid var(--border)",
+                  color: "var(--text-muted)",
+                  fontSize: 11,
+                  fontWeight: 600,
+                  letterSpacing: "0.05em",
+                  textTransform: "uppercase",
+                }}
+              >
                 <span>Date</span>
                 <span>Description</span>
                 <span>Category</span>
@@ -720,7 +840,7 @@ export default function Home() {
               </div>
 
               {sortedTransactions.length === 0 ? (
-                <div style={{ color: "#94a3b8", fontSize: 14, padding: "12px 8px" }}>
+                <div style={{ color: "var(--text-muted)", fontSize: 14, padding: "12px 8px" }}>
                   No transactions yet.
                 </div>
               ) : (
@@ -733,29 +853,41 @@ export default function Home() {
                         display: "grid",
                         gridTemplateColumns: "1fr 2fr 1.5fr 1fr",
                         padding: "12px 8px",
-                        borderBottom: i < sortedTransactions.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none",
+                        borderBottom:
+                          i < sortedTransactions.length - 1
+                            ? "1px solid var(--border)"
+                            : "none",
                         alignItems: "center",
                       }}
                     >
-                      <span style={{ color: "#64748b", fontSize: 13 }}>
+                      <span style={{ color: "var(--text-muted)", fontSize: 13 }}>
                         {new Date(tx.date).toLocaleDateString()}
                       </span>
-                      <span style={{ color: "#e2e8f0", fontSize: 13 }}>{tx.note}</span>
+                      <span style={{ color: "var(--text)", fontSize: 13 }}>{tx.note}</span>
                       <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                        <span style={{
-                          width: 7,
-                          height: 7,
-                          borderRadius: "50%",
-                          background: meta?.color ?? "#888",
-                          display: "inline-block",
-                          flexShrink: 0,
-                        }} />
-                        <span style={{ color: "#94a3b8", fontSize: 13 }}>
+                        <span
+                          style={{
+                            width: 7,
+                            height: 7,
+                            borderRadius: "50%",
+                            background: meta?.color ?? "#888",
+                            display: "inline-block",
+                            flexShrink: 0,
+                          }}
+                        />
+                        <span style={{ color: "var(--text-muted)", fontSize: 13 }}>
                           {meta?.name || "Unknown"}
                         </span>
                       </span>
-                      <span style={{ color: "#f1f5f9", fontSize: 13, textAlign: "right", fontWeight: 500 }}>
-                        -${tx.amount}
+                      <span
+                        style={{
+                          color: "var(--text)",
+                          fontSize: 13,
+                          textAlign: "right",
+                          fontWeight: 500,
+                        }}
+                      >
+                        -${tx.amount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2, })}
                       </span>
                     </div>
                   );

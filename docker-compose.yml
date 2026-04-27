@@ -13,8 +13,12 @@ services:
     container_name: budget-backend
     ports:
       - "8000:8000"
-    env_file:
-      - ./backend/.env
+    environment:
+      MONGO_URI: mongodb://mongo:27017
+      DATABASE_NAME: budgettracker
+      SECRET_KEY: dev-secret-key
+      ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: 60
     depends_on:
       - mongo
 
@@ -24,8 +28,8 @@ services:
     container_name: budget-frontend
     ports:
       - "5173:5173"
-    env_file:
-      - ./frontend/.env
+    environment:
+      VITE_API_BASE_URL: http://localhost:8000
     depends_on:
       - backend
 

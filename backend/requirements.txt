@@ -10,3 +10,5 @@ jwt~=1.4.0
 PyJWT~=2.12.1
 pwdlib~=0.3.0
 schemas~=0.7.1
+uvicorn~=0.42.0
+email-validator>=2.0.0

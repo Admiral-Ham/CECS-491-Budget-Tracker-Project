@@ -62,6 +62,24 @@ export default function Login() {
         <button type="submit" disabled={loading} style={button}>
           {loading ? "Signing in..." : "Sign in"}
         </button>
+
+        <div style={footerRow}>
+          <button
+            type="button"
+            onClick={() => nav("/forgot-password")}
+            style={linkBtn}
+          >
+            Forgot password?
+          </button>
+
+          <button
+            type="button"
+            onClick={() => nav("/register")}
+            style={linkBtn}
+          >
+            Create account
+          </button>
+        </div>
       </form>
     </div>
   );
@@ -96,13 +114,14 @@ const label = {
 };
 
 const input = {
-  width: "94%",
+  width: "100%",
   padding: "12px 12px",
   borderRadius: 12,
   border: "1px solid rgba(255,255,255,0.12)",
   background: "#0b1220",
   color: "white",
   outline: "none",
+  boxSizing: "border-box",
 };
 
 const button = {
@@ -120,5 +139,22 @@ const button = {
 const errorStyle = {
   marginTop: 10,
   color: "#fb7185",
+  fontSize: 13,
+};
+
+const footerRow = {
+  marginTop: 14,
+  display: "flex",
+  justifyContent: "space-between",
+  gap: 12,
+};
+
+const linkBtn = {
+  background: "transparent",
+  border: "none",
+  color: "rgba(255,255,255,0.8)",
+  cursor: "pointer",
+  padding: 0,
+  textDecoration: "underline",
   fontSize: 13,
 };

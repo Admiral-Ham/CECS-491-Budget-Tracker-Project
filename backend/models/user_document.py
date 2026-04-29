@@ -11,6 +11,9 @@ class User(Document):
     name:           str
     email:          EmailStr
     password_hash:  str
+    password_reset_token: str | None = None
+    password_reset_token_expires: datetime | None = None
+    creation_time: datetime = Field(default_factory=utc_now)
     creation_time:  datetime = Field(default_factory=utc_now)
 
     model_config = {

@@ -44,6 +44,18 @@ class UserLogin(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type : str
+
+    model_config = {"extra": "forbid"}
+
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+    model_config = {"extra": "forbid"}
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str = Field(min_length=8)
+
+    model_config = {"extra": "forbid"}
     
 # both base models
 def validate_user(doc: dict):

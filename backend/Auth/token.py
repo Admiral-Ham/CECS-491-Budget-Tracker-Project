@@ -1,4 +1,5 @@
 import jwt
+import secrets
 from datetime import datetime, timedelta, UTC
 from passlib.context import CryptContext
 
@@ -26,3 +27,6 @@ def create_access_token(data: dict) -> str:
 
 def decode_access_token(token: str) -> dict:
     return jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+
+def create_password_reset_token() -> str:
+    return secrets.token_urlsafe(32)

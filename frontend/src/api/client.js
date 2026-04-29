@@ -47,6 +47,27 @@ export const api = {
     return data;
   },
 
+  async register(payload){
+    return request("/users/register",{
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async forgotPassword(payload){
+    return request("/users/forgot-password", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async resetPassword(payload){
+    return request("/users/reset-password",{
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+  },
+
   async getMe() {
     return request("/users/me", {
       method: "GET",

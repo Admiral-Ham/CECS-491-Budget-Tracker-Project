@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { PieChart } from "@mui/x-charts/PieChart";
 import DesktopLayout from "../components/DesktopLayout";
 
@@ -22,7 +22,6 @@ const palette = [
 ];
 
 const pieheight = 280;
-const piewidth = 400;
 const panels = ["Top Categories", "Goals"];
 
 function ButtonToggle({ active, onClick, children }) {
@@ -79,12 +78,16 @@ function newId() {
 
 const modalOverlay = {
   position: "fixed",
-  inset: 0,
-  background: "rgba(0,0,0,0.7)",
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  background: "rgba(0,0,0,0.62)",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
   zIndex: 1000,
+  backdropFilter: "blur(8px)",
 };
 
 const modalBox = {
@@ -171,7 +174,7 @@ function GoalFormModal({ goal, onSave, onDelete, onClose }) {
   const eta = calcEta(remaining, allocationVal);
 
   return (
-    <div style={modalOverlay} onClick={onClose}>
+    <div style={ modalOverlay } onClick={onClose}>
       <div style={modalBox} onClick={(e) => e.stopPropagation()}>
         <h2 style={{ margin: "0 0 4px 0", fontSize: 18, color: "var(--text)" }}>
           {isEdit ? "Edit Goal" : "New Goal"}
@@ -223,7 +226,7 @@ function GoalFormModal({ goal, onSave, onDelete, onClose }) {
             }}
           >
             {"At $"}
-            {allocationVal.toLocaleString()}
+            {allocationVal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2, })}
             {" a month you'll reach your goal by "}
             {eta}
           </div>
@@ -300,12 +303,7 @@ function ContributeModal({ goal, onSave, onClose }) {
   );
 }
 
-function GoalsPanel({ budgetId }) {
-  const [goals, setGoals] = useState(() => loadGoals(budgetId));
-  const [showForm, setShowForm] = useState(false);
-  const [editGoal, setEditGoal] = useState(null);
-  const [contributeGoal, setContributeGoal] = useState(null);
-
+function GoalsPanel({ budgetId, onNewGoal, onEditGoal, onContributeGoal, goals, setGoals }) {
   useEffect(() => {
     saveGoals(budgetId, goals);
   }, [goals, budgetId]);
@@ -314,39 +312,12 @@ function GoalsPanel({ budgetId }) {
     setGoals(loadGoals(budgetId));
   }, [budgetId]);
 
-  const handleSave = (goal) => {
-    setGoals((prev) =>
-      prev.some((g) => g.id === goal.id)
-        ? prev.map((g) => (g.id === goal.id ? goal : g))
-        : [...prev, goal]
-    );
-    setShowForm(false);
-    setEditGoal(null);
-  };
-
-  const handleDelete = (id) => {
-    setGoals((prev) => prev.filter((g) => g.id !== id));
-    setShowForm(false);
-    setEditGoal(null);
-  };
-
-  const handleContribute = (id, amount) => {
-    setGoals((prev) =>
-      prev.map((g) =>
-        g.id === id ? { ...g, saved: Math.min(g.saved + amount, g.target) } : g
-      )
-    );
-    setContributeGoal(null);
-  };
 
   return (
     <>
       <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 10 }}>
         <button
-          onClick={() => {
-            setEditGoal(null);
-            setShowForm(true);
-          }}
+          onClick={onNewGoal}
           style={{
             padding: "4px 10px",
             borderRadius: 6,
@@ -407,7 +378,7 @@ function GoalsPanel({ budgetId }) {
                   <div style={{ display: "flex", gap: 6 }}>
                     {!done && (
                       <button
-                        onClick={() => setContributeGoal(g)}
+                        onClick={() => onContributeGoal(g)}
                         style={{
                           padding: "2px 8px",
                           borderRadius: 5,
@@ -423,10 +394,7 @@ function GoalsPanel({ budgetId }) {
                       </button>
                     )}
                     <button
-                      onClick={() => {
-                        setEditGoal(g);
-                        setShowForm(true);
-                      }}
+                      onClick={() => onEditGoal(g)}
                       style={{
                         padding: "2px 8px",
                         borderRadius: 5,
@@ -472,14 +440,14 @@ function GoalsPanel({ budgetId }) {
                 >
                   <span style={{ fontSize: 11, color: "var(--text-muted)" }}>
                     {g.monthlyAllocation && !done
-                      ? `$${g.monthlyAllocation.toLocaleString()}/mo allocated`
+                      ? `$${g.monthlyAllocation.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2, })}/month allocated`
                       : ""}
                   </span>
                   <span style={{ fontSize: 11, color: "var(--text-muted)" }}>
                     <span style={{ color: done ? "var(--success)" : "var(--text)", fontWeight: 600 }}>
-                      ${g.saved.toLocaleString()}
+                      ${g.saved.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2, })}
                     </span>
-                    {" / "}${g.target.toLocaleString()}
+                    {" / "}${g.target.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2, })}
                   </span>
                 </div>
               </div>
@@ -488,34 +456,13 @@ function GoalsPanel({ budgetId }) {
         </div>
       )}
 
-      {showForm && (
-        <GoalFormModal
-          goal={editGoal}
-          onSave={handleSave}
-          onDelete={handleDelete}
-          onClose={() => {
-            setShowForm(false);
-            setEditGoal(null);
-          }}
-        />
-      )}
-
-      {contributeGoal && (
-        <ContributeModal
-          goal={contributeGoal}
-          onSave={handleContribute}
-          onClose={() => setContributeGoal(null)}
-        />
-      )}
     </>
   );
 }
 
 const pieWrap = {
   position: "relative",
-  width: piewidth,
-  maxWidth: "100%",
-  margin: "0 auto",
+  width: "100%",
 };
 
 const pieCenterLabel = {
@@ -579,16 +526,105 @@ const readHomeData = () => {
   };
 };
 
+function PieCardChart({ chartData, totalSpent }) {
+  const wrapRef = React.useRef(null);
+  const [width, setWidth] = useState(400);
+
+  useEffect(() => {
+    if (!wrapRef.current) return;
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        setWidth(entry.contentRect.width);
+      }
+    });
+    observer.observe(wrapRef.current);
+    setWidth(wrapRef.current.getBoundingClientRect().width);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div ref={wrapRef} style={pieWrap}>
+      <PieChart
+        series={[{ innerRadius: 80, outerRadius: 100, data: chartData }]}
+        width={width}
+        height={pieheight}
+        hideLegend
+      />
+      <div style={pieCenterLabel}>
+        <div>
+          <div
+            style={{
+              fontSize: 11,
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+              color: "var(--text-muted)",
+              marginBottom: 6,
+              fontWeight: 700,
+            }}
+          >
+            Expenses
+          </div>
+          <div
+            style={{
+              fontSize: 34,
+              lineHeight: 1,
+              fontWeight: 700,
+              whiteSpace: "nowrap",
+              letterSpacing: "-0.02em",
+            }}
+          >
+            ${totalSpent.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Home() {
   const [homeData, setHomeData] = useState(() => readHomeData());
   const [activePanel, setActivePanel] = useState(panels[0]);
   const { categories, transactions, currentBudgetId } = homeData;
+
+  const [goals, setGoals] = useState(() => loadGoals(currentBudgetId));
+  const [showGoalForm, setShowGoalForm] = useState(false);
+  const [editGoal, setEditGoal] = useState(null);
+  const [contributeGoal, setContributeGoal] = useState(null);
 
   useEffect(() => {
     const handler = () => setHomeData(readHomeData());
     window.addEventListener("budget-data-updated", handler);
     return () => window.removeEventListener("budget-data-updated", handler);
   }, []);
+
+  useEffect(() => {
+    if (currentBudgetId) setGoals(loadGoals(currentBudgetId));
+  }, [currentBudgetId]);
+
+  const handleGoalSave = (goal) => {
+    setGoals((prev) =>
+      prev.some((g) => g.id === goal.id)
+        ? prev.map((g) => (g.id === goal.id ? goal : g))
+        : [...prev, goal]
+    );
+    setShowGoalForm(false);
+    setEditGoal(null);
+  };
+
+  const handleGoalDelete = (id) => {
+    setGoals((prev) => prev.filter((g) => g.id !== id));
+    setShowGoalForm(false);
+    setEditGoal(null);
+  };
+
+  const handleContribute = (id, amount) => {
+    setGoals((prev) =>
+      prev.map((g) =>
+        g.id === id ? { ...g, saved: Math.min(g.saved + amount, g.target) } : g
+      )
+    );
+    setContributeGoal(null);
+  };
 
   const { totalSpent, chartData, sortedData, sortedTransactions, categoryMeta } = useMemo(() => {
     const now = new Date();
@@ -694,47 +730,7 @@ export default function Home() {
                     No transactions this month yet.
                   </div>
                 ) : (
-                  <div style={pieWrap}>
-                    <PieChart
-                      series={[
-                        {
-                          innerRadius: 80,
-                          outerRadius: 100,
-                          data: chartData,
-                        },
-                      ]}
-                      width={piewidth}
-                      height={pieheight}
-                      hideLegend
-                    />
-                    <div style={pieCenterLabel}>
-                      <div>
-                        <div
-                          style={{
-                            fontSize: 11,
-                            letterSpacing: "0.08em",
-                            textTransform: "uppercase",
-                            color: "var(--text-muted)",
-                            marginBottom: 6,
-                            fontWeight: 700,
-                          }}
-                        >
-                          Expenses
-                        </div>
-                        <div
-                          style={{
-                            fontSize: 34,
-                            lineHeight: 1,
-                            fontWeight: 700,
-                            whiteSpace: "nowrap",
-                            letterSpacing: "-0.02em",
-                          }}
-                        >
-                          ${totalSpent.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2, })}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  <PieCardChart chartData={chartData} totalSpent={totalSpent} />
                 )}
               </div>
 
@@ -775,7 +771,7 @@ export default function Home() {
                                 />
                                 <span style={{ color: "var(--text)", fontSize: 13 }}>{item.label}</span>
                               </div>
-                              <span style={{ color: "var(--text-muted)", fontSize: 13 }}>${item.value}</span>
+                              <span style={{ color: "var(--text-muted)", fontSize: 13 }}>${(item.value).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2, })}</span>
                             </div>
                             <div
                               style={{
@@ -802,7 +798,7 @@ export default function Home() {
                   </>
                 )}
 
-                {activePanel === "Goals" && <GoalsPanel budgetId={currentBudgetId} />}
+                {activePanel === "Goals" && <GoalsPanel budgetId={currentBudgetId} goals={goals} setGoals={setGoals} onNewGoal={() => { setEditGoal(null); setShowGoalForm(true); }} onEditGoal={(g) => { setEditGoal(g); setShowGoalForm(true); }} onContributeGoal={(g) => setContributeGoal(g)} />}
               </div>
             </div>
 
@@ -897,6 +893,21 @@ export default function Home() {
           </>
         )}
       </div>
+      {showGoalForm && (
+        <GoalFormModal
+          goal={editGoal}
+          onSave={handleGoalSave}
+          onDelete={handleGoalDelete}
+          onClose={() => { setShowGoalForm(false); setEditGoal(null); }}
+        />
+      )}
+      {contributeGoal && (
+        <ContributeModal
+          goal={contributeGoal}
+          onSave={handleContribute}
+          onClose={() => setContributeGoal(null)}
+        />
+      )}
     </DesktopLayout>
   );
 }

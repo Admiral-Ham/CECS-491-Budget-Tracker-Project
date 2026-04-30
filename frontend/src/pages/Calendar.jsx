@@ -3,10 +3,11 @@ import DesktopLayout from "../components/DesktopLayout";
 import { api } from "../api/client";
 
 const card = {
-  background: "#0f172a",
-  border: "1px solid rgba(255,255,255,0.08)",
+  background: "var(--surface)",
+  border: "1px solid var(--border)",
   borderRadius: 16,
   padding: 16,
+  backdropFilter: "blur(6px)",
 };
 
 function getDaysInMonth(year, month) {
@@ -22,7 +23,9 @@ export default function Calendar() {
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
   const [transactions, setTransactions] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [currentBudgetId, setCurrentBudgetId] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(null);
   
   const daysInMonth = getDaysInMonth(currentYear, currentMonth);
   const firstDay = getFirstDayOfMonth(currentYear, currentMonth);
@@ -55,6 +58,11 @@ export default function Calendar() {
     setCurrentMonth(today.getMonth());
   };
 
+  const handleDayClick = (day) => {
+    const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+    setSelectedDate(dateStr);
+  };
+
   const loadData = async () => {
     try {
       const budgets = await api.getBudgets();
@@ -69,11 +77,14 @@ export default function Calendar() {
 
       if (!budgetId) {
         setTransactions([]);
+        setCategories([]);
         return;
       }
 
       const txs = await api.getTransactions(budgetId);
+      const cats = await api.getCategories(budgetId);
       setTransactions(txs);
+      setCategories(cats);
     } catch (error) {
       console.error("Failed to load calendar data:", error);
     }
@@ -91,15 +102,44 @@ export default function Calendar() {
     const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     return transactions.some(tx => tx.date === dateStr);
   };
-  
+
+  const getSelectedDateTransactions = () => {
+    if (!selectedDate) return [];
+    return transactions
+      .filter((tx) => tx.date === selectedDate)
+      .sort((a, b) => new Date(b.date) - new Date(a.date));
+  };
+
+  const formatDate = (dateStr) => {
+    const date = new Date(dateStr + "T00:00:00");
+    return date.toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
+  const getCategoryName = (categoryId) => {
+    const category = categories.find(c => c.id === categoryId);
+    return category ? category.name : "Unknown";
+  };
+
+  const selectedDateTransactions = getSelectedDateTransactions();
+  const selectedDateTotal = selectedDateTransactions.reduce((sum, tx) => sum + tx.amount, 0);
+
+
   return (
     <DesktopLayout title="Calendar">
-      <div style={card}>
-        {!currentBudgetId && (
-          <div style={{ color: "#94a3b8", marginBottom: 16 }}>
-            No budget selected. Create a budget to see transactions on the calendar.
-          </div>
-        )}
+      <div style={{ display: "flex", gap: 16, height: "100%", minWidth: 0 }}>
+        {/* Calendar Section */}
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 16, minWidth: 0 }}>
+          <div style={card}>
+            {!currentBudgetId && (
+              <div style={{ color: "var(--text-muted)", marginBottom: 16 }}>
+                No budget selected. Create a budget to see transactions on the calendar.
+              </div>
+            )}
 
 
         {/* Calendar Header */}
@@ -148,7 +188,14 @@ export default function Calendar() {
             return (
               <div
                 key={day}
-                style={isToday ? { ...dayCell, ...todayCell } : dayCell}
+                onClick={() => handleDayClick(day)}
+                style={{
+                  ...(isToday ? { ...dayCell, ...todayCell } : dayCell),
+                  ...(selectedDate === `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`
+                    ? selectedDayCell
+                    : {}),
+                  cursor: "pointer",
+                }}
               >
                 <div style={{ fontWeight: isToday ? 700 : 500 }}>{day}</div>
                 {hasTransactions(day) && <div style={indicator}></div>}
@@ -156,7 +203,107 @@ export default function Calendar() {
             );
           })}
         </div>
+          </div>
+        </div>
+
+        {/* Side Drawer - slides in from right within flex layout */}
+        <div
+          style={{
+            width: selectedDate ? 320 : 0,
+            background: "var(--surface)",
+            borderLeft: "1px solid var(--border)",
+            transition: "width 0.3s ease-out",
+            display: "flex",
+            flexDirection: "column",
+            padding: selectedDate ? 16 : 0,
+            boxSizing: "border-box",
+            overflow: "hidden",
+            flexShrink: 0,
+          }}
+        >
+          {/* Drawer Header */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16, paddingBottom: 16, borderBottom: "1px solid var(--border)", gap: 8 }}>
+            <h3 style={{ margin: 0, fontSize: 16, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis" }}>
+              {selectedDate ? formatDate(selectedDate) : "Select a date"}
+            </h3>
+            <button
+              onClick={() => setSelectedDate(null)}
+              style={{
+                background: "transparent",
+                border: "none",
+                color: "var(--text)",
+                fontSize: 20,
+                cursor: "pointer",
+                padding: 0,
+                width: 28,
+                height: 28,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                transition: "color 0.2s",
+                flexShrink: 0,
+              }}
+            >
+              ✕
+            </button>
+          </div>
+
+          {/* Drawer Content */}
+          <div style={{ flex: 1, overflowY: "auto", minWidth: 0 }}>
+            {!selectedDate ? (
+              <p style={{ color: "var(--text-muted)", margin: 0 }}>
+                Click a day in the calendar to view transactions.
+              </p>
+            ) : selectedDateTransactions.length === 0 ? (
+              <p style={{ color: "var(--text-muted)", margin: 0 }}>
+                No transactions on this day.
+              </p>
+            ) : (
+              <>
+                <p style={{ color: "var(--text-muted)", margin: "0 0 16px 0", fontSize: 14 }}>
+                  Total: ${selectedDateTotal.toFixed(2)}
+                </p>
+
+                <div style={{ display: "grid", gap: 8 }}>
+                  {selectedDateTransactions.map((tx) => (
+                    <div
+                      key={tx.id}
+                      style={{
+                        padding: 12,
+                        background: "var(--surface-soft)",
+                        borderRadius: 8,
+                        border: "1px solid var(--border)",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "flex-start",
+                      }}
+                    >
+                      <div>
+                        <div style={{ fontWeight: 500, marginBottom: 4, color: "var(--text)" }}>
+                          {tx.note || "Untitled transaction"}
+                        </div>
+                        <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
+                          {getCategoryName(tx.categoryId)}
+                        </div>
+                      </div>
+                      <div
+                        style={{
+                          fontWeight: 600,
+                          fontSize: 16,
+                          color: "var(--danger)",
+                        }}
+                      >
+                        ${tx.amount.toFixed(2)}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
       </div>
+
     </DesktopLayout>
   );
 }
@@ -164,7 +311,7 @@ export default function Calendar() {
 
 
 
-/* Styling From here on */
+/* I HATE STYLING SO MUCH RAHAHAHAHAH */
 const headerRow = {
   display: "flex",
   alignItems: "center",
@@ -173,9 +320,9 @@ const headerRow = {
 };
 
 const navButton = {
-  background: "rgba(255,255,255,0.05)",
-  border: "1px solid rgba(255,255,255,0.1)",
-  color: "white",
+  background: "var(--surface-soft)",
+  border: "1px solid var(--border)",
+  color: "var(--text)",
   width: 40,
   height: 40,
   borderRadius: 8,
@@ -188,9 +335,9 @@ const navButton = {
 };
 
 const todayButton = {
-  background: "rgba(20, 184, 166, 0.15)",
-  border: "1px solid rgba(20, 184, 166, 0.5)",
-  color: "white",
+  background: "linear-gradient(140deg, rgba(45, 212, 191, 0.26), rgba(56, 189, 248, 0.2))",
+  border: "1px solid rgba(45, 212, 191, 0.55)",
+  color: "var(--text)",
   padding: "8px 16px",
   borderRadius: 8,
   cursor: "pointer",
@@ -211,7 +358,7 @@ const dayNameCell = {
   textAlign: "center",
   fontSize: 13,
   fontWeight: 700,
-  color: "white",
+  color: "var(--text-muted)",
 };
 
 const emptyDayCell = {
@@ -227,15 +374,21 @@ const dayCell = {
   alignItems: "center",
   justifyContent: "center",
   borderRadius: 8,
-  background: "rgba(255,255,255,0.03)",
-  border: "1px solid rgba(255,255,255,0.05)",
+  background: "var(--surface-soft)",
+  border: "1px solid var(--border)",
   position: "relative",
   transition: "all 0.2s",
+  color: "var(--text)",
 };
 
 const todayCell = {
-  background: "rgba(20, 184, 166, 0.15)",
-  border: "1px solid rgba(20, 184, 166, 0.5)",
+  background: "rgba(45, 212, 191, 0.14)",
+  border: "1px solid rgba(45, 212, 191, 0.5)",
+};
+
+const selectedDayCell = {
+  boxShadow: "0 0 0 2px rgba(56, 189, 248, 0.5) inset",
+  background: "rgba(56, 189, 248, 0.12)",
 };
 
 const indicator = {

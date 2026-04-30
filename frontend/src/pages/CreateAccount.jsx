@@ -1,97 +1,86 @@
 import { useState } from "react";
-import { useNavigate, Link, useSearchParams } from "react-router-dom";
-import { api } from "../api/client";
+import { useNavigate } from "react-router-dom";
 
-export default function ResetPassword() {
+export default function CreateAccount() {
   const nav = useNavigate();
-  const [searchParams] = useSearchParams(); //New
-  
-  const token = searchParams.get("token") || "";
 
-  const [newPassword, setNewPassword] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
 
-  async function onSubmit(e) {
+  function onSubmit(e) {
     e.preventDefault();
     setError("");
-    setSuccess("");
 
-    if (!email.trim()) {
-      setError("Please enter your email.");
+    if (!name.trim() || !email.trim() || !password || !confirmPassword) {
+      setError("Please complete all fields.");
       return;
     }
 
-    if (!token) {
-      setError("Missing reset token.");
-      return;
-    }
-
-    if (newPassword.length < 8) {
-      setError("New password must be at least 8 characters.");
-      return;
-    }
-
-    if (newPassword !== confirmPassword) {
+    if (password !== confirmPassword) {
       setError("Passwords do not match.");
       return;
     }
 
-    try {
-      setLoading(true);
-
-      const data = await api.resetPassword({
-        token,
-        new_password: newPassword,
-      });
-
-      setSuccess(data?.message || "Password reset successful.");
-
-      setTimeout(() => {
-        nav("/", { replace: true });
-      }, 1200);
-    } catch (err) {
-      setError(err.message || "Failed to reset password.");
-    } finally {
-      setLoading(false);
-    }
+    // TODO: call backend API to create account
+    alert("Account created. Please sign in.");
+    nav("/login");
   }
+
   return (
     <div style={page}>
       <div style={orbA} />
       <div style={orbB} />
 
       <form onSubmit={onSubmit} style={card}>
-        <h1 style={{ marginTop: 0, marginBottom: 6, fontSize: 34 }}>Reset Password</h1>
-        
-        <label style={label}>New Password</label>
+        <h1 style={{ marginTop: 0, marginBottom: 6, fontSize: 34 }}>
+          Create Account
+        </h1>
+
+        <label style={label}>Username</label>
+        <input
+          style={input}
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Username"
+          autoComplete="name"
+        />
+
+        <label style={label}>Email</label>
+        <input
+          style={input}
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="user@example.com"
+          autoComplete="email"
+        />
+
+        <label style={label}>Password</label>
         <input
           style={input}
           type="password"
-          value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
-          placeholder="Enter new password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Create a password"
           autoComplete="new-password"
         />
 
-        <label style={label}>Confirm Password</label>
+        <label style={label}>Confirm password</label>
         <input
           style={input}
           type="password"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
-          placeholder="Re-enter new password"
+          placeholder="Re-enter your password"
           autoComplete="new-password"
         />
 
         {error && <div style={errorStyle}>{error}</div>}
-        {success && <div style={successStyle}>{success}</div>}
 
-        <button type="submit" disabled={loading} style={button}>
-          {loading ? "Resetting..." : "Reset password"}
+        <button type="submit" style={button}>
+          Create account
         </button>
 
         <button type="button" onClick={() => nav("/login")} style={linkBtn}>
@@ -101,6 +90,7 @@ export default function ResetPassword() {
     </div>
   );
 }
+
 const page = {
   minHeight: "100vh",
   width: "100vw",
@@ -109,7 +99,7 @@ const page = {
   alignItems: "center",
   padding: 24,
   background:
-    "radial-gradient(circle at 14% 12%, var(--orb-a), transparent 36%), radial-gradient(circle at 82% 18%, var(--orb-b), transparent 38%), linear-gradient(130deg, var(--login-bg-start), var(--login-bg-mid) 55%, var(--login-bg-end))",
+    "radial-gradient(circle at 14% 12%, rgba(45, 212, 191, 0.2), transparent 36%), radial-gradient(circle at 82% 18%, rgba(56, 189, 248, 0.2), transparent 38%), linear-gradient(130deg, #07101f, #0f1f39 55%, #122443)",
   color: "var(--text)",
   position: "relative",
   overflow: "hidden",
@@ -120,7 +110,7 @@ const orbA = {
   width: 280,
   height: 280,
   borderRadius: "50%",
-  background: "radial-gradient(circle, var(--orb-a), transparent)",
+  background: "radial-gradient(circle, rgba(45, 212, 191, 0.2), rgba(45, 212, 191, 0))",
   top: -80,
   right: -80,
 };
@@ -130,19 +120,19 @@ const orbB = {
   width: 340,
   height: 340,
   borderRadius: "50%",
-  background: "radial-gradient(circle, var(--orb-b), transparent)",
+  background: "radial-gradient(circle, rgba(56, 189, 248, 0.2), rgba(56, 189, 248, 0))",
   left: -120,
   bottom: -120,
 };
 
 const card = {
   width: "100%",
-  maxWidth: 420,
+  maxWidth: 460,
   background: "var(--surface)",
   border: "1px solid var(--border)",
   borderRadius: 20,
   padding: 24,
-  boxShadow: "0 24px 52px rgba(0,0,0,0.18)",
+  boxShadow: "0 24px 52px rgba(0,0,0,0.38)",
   backdropFilter: "blur(8px)",
   position: "relative",
   zIndex: 1,
@@ -161,7 +151,7 @@ const input = {
   padding: "12px 12px",
   borderRadius: 12,
   border: "1px solid var(--border)",
-  background: "var(--login-input-bg)",
+  background: "rgba(8, 18, 33, 0.9)",
   color: "var(--text)",
   outline: "none",
 };
@@ -181,13 +171,6 @@ const button = {
 const errorStyle = {
   marginTop: 10,
   color: "var(--danger)",
-  fontSize: 13,
-  fontWeight: 600,
-};
-
-const successStyle = {
-  marginTop: 10,
-  color: "var(--success)",
   fontSize: 13,
   fontWeight: 600,
 };

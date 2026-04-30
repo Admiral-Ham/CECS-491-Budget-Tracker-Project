@@ -74,7 +74,7 @@ export default function Login() {
 
           <button
             type="button"
-            onClick={() => nav("/register")}
+            onClick={() => nav("/create-account")}
             style={linkBtn}
           >
             Create account
@@ -92,25 +92,52 @@ const page = {
   justifyContent: "center",
   alignItems: "center",
   padding: 24,
-  background: "#0b1220",
-  color: "white",
+  background:
+    "radial-gradient(circle at 14% 12%, var(--orb-a), transparent 36%), radial-gradient(circle at 82% 18%, var(--orb-b), transparent 38%), linear-gradient(130deg, var(--login-bg-start), var(--login-bg-mid) 55%, var(--login-bg-end))",
+  color: "var(--text)",
+  position: "relative",
+  overflow: "hidden",
+};
+
+const orbA = {
+  position: "absolute",
+  width: 280,
+  height: 280,
+  borderRadius: "50%",
+  background: "radial-gradient(circle, var(--orb-a), transparent)",
+  top: -80,
+  right: -80,
+};
+
+const orbB = {
+  position: "absolute",
+  width: 340,
+  height: 340,
+  borderRadius: "50%",
+  background: "radial-gradient(circle, var(--orb-b), transparent)",
+  left: -120,
+  bottom: -120,
 };
 
 const card = {
   width: "100%",
   maxWidth: 420,
-  background: "#0f172a",
-  border: "1px solid rgba(255,255,255,0.08)",
-  borderRadius: 16,
-  padding: 20,
-  boxShadow: "0 10px 30px rgba(0,0,0,0.35)",
+  background: "var(--surface)",
+  border: "1px solid var(--border)",
+  borderRadius: 20,
+  padding: 24,
+  boxShadow: "0 24px 52px rgba(0,0,0,0.18)",
+  backdropFilter: "blur(8px)",
+  position: "relative",
+  zIndex: 1,
 };
 
 const label = {
   display: "block",
   marginTop: 12,
   marginBottom: 6,
-  opacity: 0.85,
+  color: "var(--text-muted)",
+  fontWeight: 600,
 };
 
 const input = {
@@ -138,7 +165,25 @@ const button = {
 
 const errorStyle = {
   marginTop: 10,
-  color: "#fb7185",
+  color: "var(--danger)",
+  fontSize: 13,
+  fontWeight: 600,
+};
+
+const footerRow = {
+  marginTop: 12,
+  display: "flex",
+  justifyContent: "space-between",
+  gap: 12,
+};
+
+const linkBtn = {
+  background: "transparent",
+  border: "none",
+  color: "var(--text-muted)",
+  cursor: "pointer",
+  padding: 0,
+  textDecoration: "underline",
   fontSize: 13,
 };
 

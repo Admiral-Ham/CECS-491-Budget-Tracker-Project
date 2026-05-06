@@ -186,20 +186,3 @@ const linkBtn = {
   textDecoration: "underline",
   fontSize: 13,
 };
-
-const footerRow = {
-  marginTop: 14,
-  display: "flex",
-  justifyContent: "space-between",
-  gap: 12,
-};
-
-const linkBtn = {
-  background: "transparent",
-  border: "none",
-  color: "rgba(255,255,255,0.8)",
-  cursor: "pointer",
-  padding: 0,
-  textDecoration: "underline",
-  fontSize: 13,
-};

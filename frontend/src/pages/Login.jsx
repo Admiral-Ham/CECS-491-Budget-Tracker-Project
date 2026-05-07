@@ -74,10 +74,10 @@ export default function Login() {
 
           <button
             type="button"
-            onClick={() => nav("/create-account")}
+            onClick={() => nav("/register")}
             style={linkBtn}
           >
-            Create account
+            Create Account
           </button>
         </div>
       </form>

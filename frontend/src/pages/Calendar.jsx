@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import DesktopLayout from "../components/DesktopLayout";
 import { api } from "../api/client";
 
@@ -18,23 +18,101 @@ function getFirstDayOfMonth(year, month) {
   return new Date(year, month, 1).getDay();
 }
 
+function getDateKeyFromParts(year, month, day) {
+  return `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+}
+
+function getDateKeyFromTransaction(tx) {
+  return new Date(tx.creation_time).toISOString().split("T")[0];
+}
+
 export default function Calendar() {
   const today = new Date();
+
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
   const [transactions, setTransactions] = useState([]);
   const [categories, setCategories] = useState([]);
   const [currentBudgetId, setCurrentBudgetId] = useState(null);
-  const [selectedDate, setSelectedDate] = useState(null);
-  
+  const [selectedDate, setSelectedDate] = useState(getDateKeyFromParts(today.getFullYear(), today.getMonth(), today.getDate()));
+
   const daysInMonth = getDaysInMonth(currentYear, currentMonth);
   const firstDay = getFirstDayOfMonth(currentYear, currentMonth);
-  
-  const monthNames = ["January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"];
-  
+
+  const monthNames = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December",
+  ];
+
   const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const budgets = await api.getBudgets();
+
+        if (!budgets.length) {
+          setCurrentBudgetId(null);
+          setTransactions([]);
+          setCategories([]);
+          return;
+        }
+
+        const selectedBudget = budgets[0];
+        setCurrentBudgetId(selectedBudget.id);
+
+        const cats = await api.getCategories(selectedBudget.id);
+        const allTransactions = await api.getTransactions();
+
+        const budgetTransactions = allTransactions.filter(
+          (tx) => tx.budget_id === selectedBudget.id
+        );
+
+        setCategories(cats);
+        setTransactions(budgetTransactions);
+      } catch (error) {
+        console.error("Failed to load calendar data:", error);
+      }
+    }
+
+    loadData();
+  }, []);
+
+  const transactionsByDate = useMemo(() => {
+    const map = {};
+
+    transactions.forEach((tx) => {
+      if (!tx.creation_time) return;
+
+      const key = getDateKeyFromTransaction(tx);
+
+      if (!map[key]) {
+        map[key] = [];
+      }
+
+      map[key].push(tx);
+    });
+
+    return map;
+  }, [transactions]);
+
+  const selectedDateTransactions = useMemo(() => {
+    if (!selectedDate) return [];
+
+    return [...(transactionsByDate[selectedDate] || [])].sort(
+      (a, b) => new Date(b.creation_time) - new Date(a.creation_time)
+    );
+  }, [selectedDate, transactionsByDate]);
+
+  const selectedDateTotal = selectedDateTransactions.reduce(
+    (sum, tx) => sum + Number(tx.amount),
+    0
+  );
+
+  const categoryMap = useMemo(() => {
+    return new Map(categories.map((category) => [category.id, category.name]));
+  }, [categories]);
+
   const goToPreviousMonth = () => {
     if (currentMonth === 0) {
       setCurrentMonth(11);
@@ -43,7 +121,7 @@ export default function Calendar() {
       setCurrentMonth(currentMonth - 1);
     }
   };
-  
+
   const goToNextMonth = () => {
     if (currentMonth === 11) {
       setCurrentMonth(0);
@@ -52,66 +130,30 @@ export default function Calendar() {
       setCurrentMonth(currentMonth + 1);
     }
   };
-  
+
   const goToToday = () => {
-    setCurrentYear(today.getFullYear());
-    setCurrentMonth(today.getMonth());
+    const now = new Date();
+    setCurrentYear(now.getFullYear());
+    setCurrentMonth(now.getMonth());
+    setSelectedDate(getDateKeyFromParts(now.getFullYear(), now.getMonth(), now.getDate()));
   };
 
   const handleDayClick = (day) => {
-    const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-    setSelectedDate(dateStr);
+    setSelectedDate(getDateKeyFromParts(currentYear, currentMonth, day));
   };
 
-  const loadData = async () => {
-    try {
-      const budgets = await api.getBudgets();
-      let budgetId = await api.getCurrentBudgetId();
-
-      if (!budgetId && budgets.length > 0) {
-        budgetId = budgets[0].id;
-        await api.setCurrentBudgetId(budgetId);
-      }
-
-      setCurrentBudgetId(budgetId || null);
-
-      if (!budgetId) {
-        setTransactions([]);
-        setCategories([]);
-        return;
-      }
-
-      const txs = await api.getTransactions(budgetId);
-      const cats = await api.getCategories(budgetId);
-      setTransactions(txs);
-      setCategories(cats);
-    } catch (error) {
-      console.error("Failed to load calendar data:", error);
-    }
-  };
-
-  useEffect(() => {
-    loadData();
-    const handler = () => loadData();
-    window.addEventListener("budget-data-updated", handler);
-    return () => window.removeEventListener("budget-data-updated", handler);
-  }, []);
-  
-  // Check if a date has transactions
   const hasTransactions = (day) => {
-    const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    return transactions.some(tx => tx.date === dateStr);
+    const dateKey = getDateKeyFromParts(currentYear, currentMonth, day);
+    return Boolean(transactionsByDate[dateKey]?.length);
   };
 
-  const getSelectedDateTransactions = () => {
-    if (!selectedDate) return [];
-    return transactions
-      .filter((tx) => tx.date === selectedDate)
-      .sort((a, b) => new Date(b.date) - new Date(a.date));
+  const getDayTransactions = (day) => {
+    const dateKey = getDateKeyFromParts(currentYear, currentMonth, day);
+    return transactionsByDate[dateKey] || [];
   };
 
   const formatDate = (dateStr) => {
-    const date = new Date(dateStr + "T00:00:00");
+    const date = new Date(`${dateStr}T00:00:00`);
     return date.toLocaleDateString("en-US", {
       weekday: "long",
       year: "numeric",
@@ -121,18 +163,12 @@ export default function Calendar() {
   };
 
   const getCategoryName = (categoryId) => {
-    const category = categories.find(c => c.id === categoryId);
-    return category ? category.name : "Unknown";
+    return categoryMap.get(categoryId) || "Unknown";
   };
-
-  const selectedDateTransactions = getSelectedDateTransactions();
-  const selectedDateTotal = selectedDateTransactions.reduce((sum, tx) => sum + tx.amount, 0);
-
 
   return (
     <DesktopLayout title="Calendar">
       <div style={{ display: "flex", gap: 16, height: "100%", minWidth: 0 }}>
-        {/* Calendar Section */}
         <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 16, minWidth: 0 }}>
           <div style={card}>
             {!currentBudgetId && (
@@ -141,72 +177,86 @@ export default function Calendar() {
               </div>
             )}
 
+            <div style={headerRow}>
+              <button onClick={goToPreviousMonth} style={navButton}>
+                ←
+              </button>
 
-        {/* Calendar Header */}
-        <div style={headerRow}>
-          <button onClick={goToPreviousMonth} style={navButton}>
-            ←
-          </button>
-          
-          <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>
-            {monthNames[currentMonth]} {currentYear}
-          </h2>
-          
-          <button onClick={goToNextMonth} style={navButton}>
-            →
-          </button>
-        </div>
-        
-        <button onClick={goToToday} style={todayButton}>
-          Today
-        </button>
+              <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>
+                {monthNames[currentMonth]} {currentYear}
+              </h2>
 
+              <button onClick={goToNextMonth} style={navButton}>
+                →
+              </button>
+            </div>
 
-        {/* Day names header */}
-        <div style={calendarGrid}>
-          {dayNames.map(name => (
-            <div key={name} style={dayNameCell}>{name}</div>
-          ))}
-        </div>
+            <button onClick={goToToday} style={todayButton}>
+              Today
+            </button>
 
+            <div style={calendarGrid}>
+              {dayNames.map((name) => (
+                <div key={name} style={dayNameCell}>
+                  {name}
+                </div>
+              ))}
+            </div>
 
-        {/* Calendar days */}
-        <div style={calendarGrid}>
-          {/* Empty cells before the 1st of the month */}
-          {Array(firstDay).fill(null).map((_, i) => (
-            <div key={`empty-${i}`} style={emptyDayCell}></div>
-          ))}
-          
-          {/* Actual day cells (1, 2, 3, ... 28, 29, 30, 31) */}
-          {Array(daysInMonth).fill(null).map((_, i) => {
-            const day = i + 1;  // Convert 0-based index to 1-based day
-            const isToday = 
-              day === today.getDate() && 
-              currentMonth === today.getMonth() && 
-              currentYear === today.getFullYear();
-            
-            return (
-              <div
-                key={day}
-                onClick={() => handleDayClick(day)}
-                style={{
-                  ...(isToday ? { ...dayCell, ...todayCell } : dayCell),
-                  ...(selectedDate === `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`
-                    ? selectedDayCell
-                    : {}),
-                  cursor: "pointer",
-                }}
-              >
-                <div style={{ fontWeight: isToday ? 700 : 500 }}>{day}</div>
-                {hasTransactions(day) && <div style={indicator}></div>}
-              </div>
-            );
-          })}
-        </div>
+            <div style={calendarGrid}>
+              {Array(firstDay)
+                .fill(null)
+                .map((_, i) => (
+                  <div key={`empty-${i}`} style={emptyDayCell} />
+                ))}
+
+              {Array(daysInMonth)
+                .fill(null)
+                .map((_, i) => {
+                  const day = i + 1;
+                  const dateKey = getDateKeyFromParts(currentYear, currentMonth, day);
+                  const isToday =
+                    day === today.getDate() &&
+                    currentMonth === today.getMonth() &&
+                    currentYear === today.getFullYear();
+                  const isSelected = selectedDate === dateKey;
+                  const dayTransactions = getDayTransactions(day);
+
+                  return (
+                    <div
+                      key={day}
+                      onClick={() => handleDayClick(day)}
+                      style={{
+                        ...dayCell,
+                        ...(isToday ? todayCell : {}),
+                        ...(isSelected ? selectedDayCell : {}),
+                        cursor: "pointer",
+                      }}
+                    >
+                      <div style={{ fontWeight: isToday ? 700 : 500 }}>
+                        {day}
+                      </div>
+
+                      {hasTransactions(day) && <div style={indicator} />}
+
+                      {dayTransactions.slice(0, 2).map((tx) => (
+                        <div key={tx.id} style={dayTransactionText}>
+                          {tx.name} · ${Number(tx.amount).toFixed(2)}
+                        </div>
+                      ))}
+
+                      {dayTransactions.length > 2 && (
+                        <div style={dayTransactionMore}>
+                          +{dayTransactions.length - 2} more
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+            </div>
           </div>
         </div>
 
-        {/* Side Drawer - slides in from right within flex layout */}
         <div
           style={{
             width: selectedDate ? 320 : 0,
@@ -221,11 +271,29 @@ export default function Calendar() {
             flexShrink: 0,
           }}
         >
-          {/* Drawer Header */}
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16, paddingBottom: 16, borderBottom: "1px solid var(--border)", gap: 8 }}>
-            <h3 style={{ margin: 0, fontSize: 16, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
+              marginBottom: 16,
+              paddingBottom: 16,
+              borderBottom: "1px solid var(--border)",
+              gap: 8,
+            }}
+          >
+            <h3
+              style={{
+                margin: 0,
+                fontSize: 16,
+                minWidth: 0,
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              }}
+            >
               {selectedDate ? formatDate(selectedDate) : "Select a date"}
             </h3>
+
             <button
               onClick={() => setSelectedDate(null)}
               style={{
@@ -240,7 +308,6 @@ export default function Calendar() {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                transition: "color 0.2s",
                 flexShrink: 0,
               }}
             >
@@ -248,7 +315,6 @@ export default function Calendar() {
             </button>
           </div>
 
-          {/* Drawer Content */}
           <div style={{ flex: 1, overflowY: "auto", minWidth: 0 }}>
             {!selectedDate ? (
               <p style={{ color: "var(--text-muted)", margin: 0 }}>
@@ -260,7 +326,13 @@ export default function Calendar() {
               </p>
             ) : (
               <>
-                <p style={{ color: "var(--text-muted)", margin: "0 0 16px 0", fontSize: 14 }}>
+                <p
+                  style={{
+                    color: "var(--text-muted)",
+                    margin: "0 0 16px 0",
+                    fontSize: 14,
+                  }}
+                >
                   Total: ${selectedDateTotal.toFixed(2)}
                 </p>
 
@@ -276,16 +348,25 @@ export default function Calendar() {
                         display: "flex",
                         justifyContent: "space-between",
                         alignItems: "flex-start",
+                        gap: 12,
                       }}
                     >
                       <div>
-                        <div style={{ fontWeight: 500, marginBottom: 4, color: "var(--text)" }}>
-                          {tx.note || "Untitled transaction"}
+                        <div
+                          style={{
+                            fontWeight: 500,
+                            marginBottom: 4,
+                            color: "var(--text)",
+                          }}
+                        >
+                          {tx.name || "Untitled transaction"}
                         </div>
+
                         <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
-                          {getCategoryName(tx.categoryId)}
+                          {getCategoryName(tx.category_id)}
                         </div>
                       </div>
+
                       <div
                         style={{
                           fontWeight: 600,
@@ -293,7 +374,7 @@ export default function Calendar() {
                           color: "var(--danger)",
                         }}
                       >
-                        ${tx.amount.toFixed(2)}
+                        ${Number(tx.amount).toFixed(2)}
                       </div>
                     </div>
                   ))}
@@ -303,15 +384,10 @@ export default function Calendar() {
           </div>
         </div>
       </div>
-
     </DesktopLayout>
   );
 }
 
-
-
-
-/* I HATE STYLING SO MUCH RAHAHAHAHAH */
 const headerRow = {
   display: "flex",
   alignItems: "center",
@@ -331,7 +407,6 @@ const navButton = {
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  transition: "all 0.2s",
 };
 
 const todayButton = {
@@ -344,7 +419,6 @@ const todayButton = {
   fontWeight: 600,
   fontSize: 14,
   marginBottom: 16,
-  transition: "all 0.2s",
 };
 
 const calendarGrid = {
@@ -377,8 +451,8 @@ const dayCell = {
   background: "var(--surface-soft)",
   border: "1px solid var(--border)",
   position: "relative",
-  transition: "all 0.2s",
   color: "var(--text)",
+  overflow: "hidden",
 };
 
 const todayCell = {
@@ -397,4 +471,20 @@ const indicator = {
   borderRadius: "50%",
   background: "#14b8a6",
   marginTop: 4,
+};
+
+const dayTransactionText = {
+  marginTop: 4,
+  maxWidth: "100%",
+  fontSize: 10,
+  color: "var(--text-muted)",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
+};
+
+const dayTransactionMore = {
+  marginTop: 2,
+  fontSize: 10,
+  color: "var(--accent)",
 };
